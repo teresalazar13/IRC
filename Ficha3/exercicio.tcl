@@ -19,12 +19,12 @@ set n1 [$ns node]
 set n2 [$ns node]
 set n3 [$ns node]
 
-# C = 320 Mbps e Tp = 2.565 ms
-$ns duplex-link $n0 $n1 320Mb 2.565ms DropTail
-# C = 40 Mbps e Tp = 6.35 ms
+# C = 13 Mbps e Tp = 5.24 ms  BERLIM --- PARIS
+$ns duplex-link $n0 $n1 13Mb 5.24ms DropTail
+# C = 40 Mbps e Tp = 6.35 ms  PARIS --- MADRID
 $ns duplex-link $n1 $n2 40Mb 6.35ms DropTail
-# C = 13 Mbps e Tp = 5.24 ms
-$ns duplex-link $n2 $n3 13Mb 5.24ms DropTail
+# C = 320 Mbps e Tp = 2.565 ms   MADRID --- COIMBRA
+$ns duplex-link $n0 $n1 320Mb 2.565ms DropTail
 
 # cria um agente UDP e liga-o ao nó n0
 set udp0 [new Agent/UDP]
@@ -49,12 +49,6 @@ $cbr1 attach-agent $udp1
 set udp2 [new Agent/UDP]
 $ns attach-agent $n2 $udp2
 
-# set cbr2 [new Application/Traffic/CBR]
-# $cbr2 set packetSize_ 1024
-# $cbr2 set interval_ 1
-# $cbr2 set maxpkts_ 1
-# $cbr2 attach-agent $udp2
-
 set null1 [new Agent/Null]
 $ns attach-agent $n1 $null1
 
@@ -65,17 +59,13 @@ $ns attach-agent $n2 $null2
 set null3 [new Agent/Null]
 $ns attach-agent $n3 $null3
 
-
 $ns connect $udp0 $null3
 $ns connect $udp1 $null2
-# $ns connect $udp2 $null3
 
 $ns at 0.1 "$cbr0 start"
 $ns at 0.1 "$cbr1 start"
-# $ns at 0.1 "$cbr2 start"
 $ns at 4.0 "$cbr0 stop"
 $ns at 4.0 "$cbr1 stop"
-# $ns at 4.0 "$cbr2 stop"
 
 $udp0 set class_ 1
 $udp1 set class_ 2
