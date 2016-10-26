@@ -49,9 +49,6 @@ $cbr1 attach-agent $udp1
 set udp2 [new Agent/UDP]
 $ns attach-agent $n2 $udp2
 
-set null1 [new Agent/Null]
-$ns attach-agent $n1 $null1
-
 set null2 [new Agent/Null]
 $ns attach-agent $n2 $null2
 
