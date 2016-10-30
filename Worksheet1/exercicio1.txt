@@ -1,0 +1,5 @@
+gerar pacotes com o tamanho de 500 bytes à taxa de 200 pacotes por
+segundo (1 em cada 0.005 segundos)
+500 * 200 * 2 = 200000 bytes ps
+
+largura de banda de 1 Mbps com um atraso de 10ms = 125000 bytes/s
