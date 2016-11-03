@@ -1,13 +1,19 @@
-if {$argc == 1} {
+if {$argc == 3} {
     set cenario [lindex $argv 0]
+    set protocol [lindex $argv 1]
+    set window [lindex $argv 2]
 } else {
     puts "Error"
     puts "Usage: $argv0 cenario"
+    puts "Usage: $argv1 protocol"
+    puts "Usage: $argv2 window"
     exit 1
 }
 
 # Create the 'Simulator' object
 set ns [new Simulator]
+
+$ns color 1 Pink
 
 # Open a file for writing the nam trace data
 set nf [open out.nam w]
@@ -49,29 +55,35 @@ $ns duplex-link-op $n4 $n5 orient right
 $ns duplex-link-op $n5 $n6 orient right
 $ns duplex-link-op $n5 $n7 orient down
 
-set udp0 [new Agent/UDP]
-$ns attach-agent $n0 $udp0
-
 set cbr0 [new Application/Traffic/CBR]
 $cbr0 set packetSize_ 2048
 $cbr0 set maxpkts_ 1
-$cbr0 attach-agent $udp0
 
 set null0 [new Agent/Null]
 $ns attach-agent $n7 $null0
 
 if {$cenario == 1} {
-
+  if {$protocol == "udp"} {
+    set udp0 [new Agent/UDP]
+    $ns attach-agent $n0 $udp0
+    $cbr0 attach-agent $udp0
+    $ns connect $udp0 $null0
+    $udp0 set class_ 1
+  }
+  if {$protocol == "tcp"} {
+    set tcp0 [$ns create-connection TCP $n0 TCPSink $n7 1]
+    $tcp0 set window_ $window
+    $cbr0 attach-agent $tcp0
+  }
 }
 
 if {$cenario == 2} {
 
 }
 
-$ns connect $udp0 $null0
-
 $ns at 0.5 "$cbr0 start"
-$ns at 3.0 "finish"
+$ns at 6.0 "finish"
+
 
 # Start the simulation
 $ns run
