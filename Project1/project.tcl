@@ -1,7 +1,10 @@
-if {$argc == 3} {
+if {$argc == 2} {
     set cenario [lindex $argv 0]
-    set protocol [lindex $argv 1]
-    set window [lindex $argv 2]
+    set protocol "tcp"
+    set window [lindex $argv 1]
+} elseif {$argc == 1} {
+    set cenario [lindex $argv 0]
+    set protocol "udp"
 } else {
     puts "Error"
     puts "Usage: $argv0 cenario"
