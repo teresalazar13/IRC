@@ -1,0 +1,56 @@
+a) 193.137.203.248
+b) 20
+c)  inetnum:        193.137.203.0 - 193.137.203.255
+    netname:        PPPNET
+    descr:          Depart. Engenharia Informatica
+    descr:          Universidade de Coimbra
+    country:        PT
+    admin-c:        RCUD4-RIPE
+    tech-c:         RCUD4-RIPE
+    status:         ASSIGNED PA
+    org:            ORG-UDC71-RIPE
+    remarks:        SERVIP-UC
+    mnt-by:         AS1930-MNT
+    created:        2002-07-03T23:29:18Z
+    last-modified:  2015-06-11T21:32:48Z
+    source:         RIPE
+
+    organisation:   ORG-UDC71-RIPE
+    org-name:       Universidade de Coimbra
+    org-type:       OTHER
+    address:        Rua do Arco da Traicao
+    address:        Apartado 3080
+    address:        3001-401 Coimbra
+    address:        PORTUGAL
+    phone:          +351 239853170
+    fax-no:         +351 239853189
+    admin-c:        RCUD4-RIPE
+    tech-c:         RCUD4-RIPE
+    mnt-by:         AS1930-MNT
+    mnt-ref:        AS1930-MNT
+    abuse-c:        FST8-RIPE
+    abuse-mailbox:  report@cert.rcts.pt
+    created:        2014-01-20T18:29:59Z
+    last-modified:  2015-05-11T18:08:51Z
+    source:         RIPE # Filtered
+
+    role:           RCTS Contacts Universidade de Coimbra
+    address:        Universidade de Coimbra
+    address:        Rua do Arco da Traicao
+    address:        Apartado 3080
+    address:        3001-401 Coimbra
+    address:        PORTUGAL
+    abuse-mailbox:  cert@uc.pt
+    admin-c:        BF304-RIPE
+    tech-c:         MB397
+    tech-c:         CMSP2-RIPE
+    tech-c:         PVP36-RIPE
+    tech-c:         CUDC1-RIPE
+    nic-hdl:        RCUD4-RIPE
+    mnt-by:         AS1930-MNT
+    created:        2015-04-25T22:10:26Z
+    last-modified:  2016-05-06T22:45:24Z
+d) <-
+e) <-
+f) /sbin/ifconfig <interface> inet6 add <ipv6address>/<prefixlength> EX:. /sbin/ifconfig eth0 inet6 add 2001:0db8:0:f101::1/64 
+g) 12
