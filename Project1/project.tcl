@@ -47,16 +47,6 @@ $ns duplex-link $n4 $n5 10Mb 10ms DropTail
 $ns duplex-link $n5 $n6 10Mb 10ms DropTail
 $ns duplex-link $n5 $n7 10Mb 10ms DropTail
 
-# Position of queue
-$ns duplex-link $n0 $n1 queuePos 0.5
-$ns duplex-link $n1 $n2 queuePos 0.5
-$ns simplex-link $n1 $n4 queuePos 0.5
-$ns duplex-link $n2 $n3 queuePos 0.5
-$ns duplex-link $n2 $n5 queuePos 0.5
-$ns duplex-link $n3 $n6 queuePos 0.5
-$ns duplex-link $n4 $n5 queuePos 0.5
-$ns duplex-link $n5 $n6 queuePos 0.5
-$ns duplex-link $n5 $n7 queuePos 0.5
 
 # Nodes' layout
 $ns duplex-link-op $n0 $n1 orient right
@@ -85,8 +75,9 @@ if {$cenario == 1} {
     $udp0 set class_ 1
   }
   if {$protocol == "tcp"} {
-    set tcp0 [$ns create-connection TCP $n0 TCPSink $n7 1]
+    set tcp0 [$ns create-connection TCP $n0 TCPSink $n7 2]
     $tcp0 set window_ $window
+    $ns attach-agent $n0 $tcp0
     $cbr0 attach-agent $tcp0
   }
 }
