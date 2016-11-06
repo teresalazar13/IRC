@@ -47,6 +47,17 @@ $ns duplex-link $n4 $n5 10Mb 10ms DropTail
 $ns duplex-link $n5 $n6 10Mb 10ms DropTail
 $ns duplex-link $n5 $n7 10Mb 10ms DropTail
 
+# Position of queue
+$ns duplex-link $n0 $n1 queuePos 0.5
+$ns duplex-link $n1 $n2 queuePos 0.5
+$ns simplex-link $n1 $n4 queuePos 0.5
+$ns duplex-link $n2 $n3 queuePos 0.5
+$ns duplex-link $n2 $n5 queuePos 0.5
+$ns duplex-link $n3 $n6 queuePos 0.5
+$ns duplex-link $n4 $n5 queuePos 0.5
+$ns duplex-link $n5 $n6 queuePos 0.5
+$ns duplex-link $n5 $n7 queuePos 0.5
+
 # Nodes' layout
 $ns duplex-link-op $n0 $n1 orient right
 $ns duplex-link-op $n1 $n2 orient right
