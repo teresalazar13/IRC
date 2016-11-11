@@ -102,14 +102,14 @@ if {$cenario == 2} {
 
 
   set udp2 [new Agent/UDP]
-  $ns attach-agent $n2 $udp2
+  $ns attach-agent $n5 $udp2
 
   set cbr2 [new Application/Traffic/CBR]
   $cbr2 set rate_ 5Mb
   $cbr2 attach-agent $udp2
 
   set null2 [new Agent/Null]
-  $ns attach-agent $n5 $null2
+  $ns attach-agent $n2 $null2
   $ns connect $udp2 $null2
 
   $udp2 set class_ 4
