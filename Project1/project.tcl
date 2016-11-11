@@ -15,10 +15,6 @@ if {$argc == 4} {
 # Create the 'Simulator' object
 set ns [new Simulator]
 
-$ns color 1 Blue
-$ns color 2 Red
-$ns color 3 Green
-
 # Open a file for writing the nam trace data
 set nf [open out.nam w]
 $ns namtrace-all $nf
@@ -59,6 +55,33 @@ $ns duplex-link-op $n3 $n6 orient down
 $ns duplex-link-op $n4 $n5 orient right
 $ns duplex-link-op $n5 $n6 orient right
 $ns duplex-link-op $n5 $n7 orient down
+
+# Packets' colors
+$ns color 1 Blue
+$ns color 2 Red
+$ns color 3 Green
+
+# Shapes
+$n0 shape "hexagon"
+$n1 shape "square"
+$n5 shape "square"
+$n7 shape "hexagon"
+
+# Nodes' colors
+$n0 color Blue
+$n1 color Red
+$n5 color Green
+$n7 color Blue
+
+# Labels
+$n0 label "PC A"
+$n1 label "PC B"
+$n2 label "PC C"
+$n3 label "R3"
+$n4 label "R4"
+$n5 label "PC D"
+$n6 label "R6"
+$n7 label "PC E"
 
 set cbr0 [new Application/Traffic/CBR]
 $cbr0 set packetSize_ 2048
