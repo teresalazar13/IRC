@@ -28,12 +28,12 @@ proc finish {} {
     exit 0
 }
 
-# Create nodes
+# Nodes creation
 for {set i 0} {$i < 8} {incr i} {
     set n$i [$ns node]
 }
 
-# Link
+# Links
 $ns duplex-link $n0 $n1 10Mb 10ms DropTail
 $ns duplex-link $n1 $n2 10Mb 10ms DropTail
 $ns simplex-link $n1 $n4 10Mb 5ms DropTail
@@ -43,7 +43,6 @@ $ns duplex-link $n3 $n6 10Mb 10ms DropTail
 $ns duplex-link $n4 $n5 10Mb 10ms DropTail
 $ns duplex-link $n5 $n6 10Mb 10ms DropTail
 $ns duplex-link $n5 $n7 10Mb 10ms DropTail
-
 
 # Nodes' layout
 $ns duplex-link-op $n0 $n1 orient right
@@ -83,8 +82,12 @@ $n5 label "PC D"
 $n6 label "R6"
 $n7 label "PC E"
 
+# Queue limit
+set queue0_1 [[$ns link $n0 $n1] queue]
+$queue0_1 set limit_ 2098
+
 set cbr0 [new Application/Traffic/CBR]
-$cbr0 set packetSize_ 2048
+$cbr0 set packetSize_ 2097152
 $cbr0 set maxpkts_ 1
 
 set null0 [new Agent/Null]
