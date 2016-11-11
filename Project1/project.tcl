@@ -1,15 +1,14 @@
-if {$argc == 2} {
-    set cenario [lindex $argv 0]
-    set protocol [lindex $argv 1]
-} elseif {$argc == 3} {
+if {$argc == 4} {
     set cenario [lindex $argv 0]
     set protocol [lindex $argv 1]
     set window [lindex $argv 2]
+    set break [lindex $argv 3]
 } else {
     puts "Error"
     puts "Usage: $argv0 cenario"
     puts "Usage: $argv1 protocol"
     puts "Usage: $argv2 window"
+    puts "Usage: $argv3 break"
     exit 1
 }
 
@@ -115,6 +114,11 @@ if {$cenario == 2} {
 
   $ns at 0.5 "$cbr2 start"
   $ns at 6.0 "$cbr2 stop"
+}
+
+if {$break == 1} {
+  $ns rtmodel-at 0.75 down $n2 $n5
+  $ns rtmodel-at 0.9 up $n2 $n5
 }
 
 $ns at 0.5 "$cbr0 start"
