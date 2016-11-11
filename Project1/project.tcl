@@ -16,10 +16,9 @@ if {$argc == 2} {
 # Create the 'Simulator' object
 set ns [new Simulator]
 
-$ns color 1 Red
-$ns color 2 Blue
-$ns color 3 Orange
-$ns color 4 Pink
+$ns color 1 Blue
+$ns color 2 Red
+$ns color 3 Green
 
 # Open a file for writing the nam trace data
 set nf [open out.nam w]
@@ -77,7 +76,7 @@ if {$protocol == "udp"} {
   $udp0 set class_ 1
 }
 if {$protocol == "tcp"} {
-  set tcp0 [$ns create-connection TCP $n0 TCPSink $n7 2]
+  set tcp0 [$ns create-connection TCP $n0 TCPSink $n7 1]
   $tcp0 set window_ $window
   $ns attach-agent $n0 $tcp0
   $cbr0 attach-agent $tcp0
@@ -95,7 +94,7 @@ if {$cenario == 2} {
   $ns attach-agent $n5 $null1
   $ns connect $udp1 $null1
 
-  $udp1 set class_ 3
+  $udp1 set class_ 2
 
   $ns at 0.5 "$cbr1 start"
 	$ns at 6.0 "$cbr1 stop"
@@ -112,7 +111,7 @@ if {$cenario == 2} {
   $ns attach-agent $n2 $null2
   $ns connect $udp2 $null2
 
-  $udp2 set class_ 4
+  $udp2 set class_ 3
 
   $ns at 0.5 "$cbr2 start"
   $ns at 6.0 "$cbr2 stop"
