@@ -19,13 +19,18 @@ set ns [new Simulator]
 set nf [open out.nam w]
 $ns namtrace-all $nf
 
+set nt [open out.tr w]
+$ns trace-all $nt
+
 # Add a 'finish' procedure that closes the trace and starts nam
 proc finish {} {
-    global ns nf
-    $ns flush-trace
-    close $nf
-    exec nam out.nam &
-    exit 0
+  global ns nt
+  global ns nf
+  $ns flush-trace
+  close $nt
+  close $nf
+  exec nam out.nam
+  exit 0
 }
 
 # Nodes creation
@@ -83,8 +88,8 @@ $n6 label "R6"
 $n7 label "PC E"
 
 # Queue limit
-set queue0_1 [[$ns link $n0 $n1] queue]
-$queue0_1 set limit_ 2098
+# set queue0_1 [[$ns link $n0 $n1] queue]
+# $queue0_1 set limit_ 2098
 
 set cbr0 [new Application/Traffic/CBR]
 $cbr0 set packetSize_ 2097152
