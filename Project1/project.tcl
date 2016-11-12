@@ -15,6 +15,9 @@ if {$argc == 4} {
 # Create the 'Simulator' object
 set ns [new Simulator]
 
+# Set Dynamic Routing Protocol
+$ns rtproto LS
+
 # Open a file for writing the nam trace data
 set nf [open out.nam w]
 $ns namtrace-all $nf
@@ -24,13 +27,13 @@ $ns trace-all $nt
 
 # Add a 'finish' procedure that closes the trace and starts nam
 proc finish {} {
-  global ns nt
-  global ns nf
-  $ns flush-trace
-  close $nt
-  close $nf
-  exec nam out.nam
-  exit 0
+    global ns nt
+    global ns nf
+    $ns flush-trace
+    close $nt
+    close $nf
+    exec nam out.nam
+    exit 0
 }
 
 # Nodes creation
@@ -88,8 +91,8 @@ $n6 label "R6"
 $n7 label "PC E"
 
 # Queue limit
-# set queue0_1 [[$ns link $n0 $n1] queue]
-# $queue0_1 set limit_ 2098
+set queue0_1 [[$ns link $n0 $n1] queue]
+$queue0_1 set limit_ 2098
 
 set cbr0 [new Application/Traffic/CBR]
 $cbr0 set packetSize_ 2097152
@@ -99,62 +102,61 @@ set null0 [new Agent/Null]
 $ns attach-agent $n7 $null0
 
 if {$protocol == "udp"} {
-  set udp0 [new Agent/UDP]
-  $ns attach-agent $n0 $udp0
-  $cbr0 attach-agent $udp0
-  $ns connect $udp0 $null0
-  $udp0 set class_ 1
+    set udp0 [new Agent/UDP]
+    $ns attach-agent $n0 $udp0
+    $cbr0 attach-agent $udp0
+    $ns connect $udp0 $null0
+    $udp0 set class_ 1
 }
 if {$protocol == "tcp"} {
-  set tcp0 [$ns create-connection TCP $n0 TCPSink $n7 1]
-  $tcp0 set window_ $window
-  $ns attach-agent $n0 $tcp0
-  $cbr0 attach-agent $tcp0
+    set tcp0 [$ns create-connection TCP $n0 TCPSink $n7 1]
+    $tcp0 set window_ $window
+    $ns attach-agent $n0 $tcp0
+    $cbr0 attach-agent $tcp0
 }
 
 if {$cenario == 2} {
-  set udp1 [new Agent/UDP]
-  $ns attach-agent $n1 $udp1
+    set udp1 [new Agent/UDP]
+    $ns attach-agent $n1 $udp1
 
-  set cbr1 [new Application/Traffic/CBR]
-  $cbr1 set rate_ 6Mb
-  $cbr1 attach-agent $udp1
+    set cbr1 [new Application/Traffic/CBR]
+    $cbr1 set rate_ 6Mb
+    $cbr1 attach-agent $udp1
 
-  set null1 [new Agent/Null]
-  $ns attach-agent $n5 $null1
-  $ns connect $udp1 $null1
+    set null1 [new Agent/Null]
+    $ns attach-agent $n5 $null1
+    $ns connect $udp1 $null1
 
-  $udp1 set class_ 2
+    $udp1 set class_ 2
 
-  $ns at 0.5 "$cbr1 start"
-	$ns at 6.0 "$cbr1 stop"
+    $ns at 0.5 "$cbr1 start"
+  	$ns at 6.0 "$cbr1 stop"
 
 
-  set udp2 [new Agent/UDP]
-  $ns attach-agent $n5 $udp2
+    set udp2 [new Agent/UDP]
+    $ns attach-agent $n5 $udp2
 
-  set cbr2 [new Application/Traffic/CBR]
-  $cbr2 set rate_ 5Mb
-  $cbr2 attach-agent $udp2
+    set cbr2 [new Application/Traffic/CBR]
+    $cbr2 set rate_ 5Mb
+    $cbr2 attach-agent $udp2
 
-  set null2 [new Agent/Null]
-  $ns attach-agent $n2 $null2
-  $ns connect $udp2 $null2
+    set null2 [new Agent/Null]
+    $ns attach-agent $n2 $null2
+    $ns connect $udp2 $null2
 
-  $udp2 set class_ 3
+    $udp2 set class_ 3
 
-  $ns at 0.5 "$cbr2 start"
-  $ns at 6.0 "$cbr2 stop"
+    $ns at 0.5 "$cbr2 start"
+    $ns at 6.0 "$cbr2 stop"
 }
 
 if {$break == 1} {
-  $ns rtmodel-at 0.75 down $n2 $n5
-  $ns rtmodel-at 0.9 up $n2 $n5
+    $ns rtmodel-at 0.75 down $n2 $n5
+    $ns rtmodel-at 0.9 up $n2 $n5
 }
 
 $ns at 0.5 "$cbr0 start"
 $ns at 6.0 "finish"
-
 
 # Start the simulation
 $ns run
