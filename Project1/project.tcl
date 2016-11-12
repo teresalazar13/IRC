@@ -1,14 +1,16 @@
-if {$argc == 4} {
+if {$argc == 5} {
     set cenario [lindex $argv 0]
     set protocol [lindex $argv 1]
     set window [lindex $argv 2]
     set break [lindex $argv 3]
+    set speed [lindex $argv 4]
 } else {
     puts "Error"
     puts "Usage: $argv0 cenario"
     puts "Usage: $argv1 protocol"
     puts "Usage: $argv2 window"
     puts "Usage: $argv3 break"
+    puts "Usage: $argv4 speed"
     exit 1
 }
 
@@ -42,7 +44,7 @@ for {set i 0} {$i < 8} {incr i} {
 }
 
 # Links
-$ns duplex-link $n0 $n1 10Mb 10ms DropTail
+$ns duplex-link $n0 $n1 $speed 10ms DropTail
 $ns duplex-link $n1 $n2 10Mb 10ms DropTail
 $ns simplex-link $n1 $n4 10Mb 5ms DropTail
 $ns duplex-link $n2 $n3 10Mb 10ms DropTail
