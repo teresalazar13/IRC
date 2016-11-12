@@ -6,11 +6,11 @@ if {$argc == 5} {
     set speed [lindex $argv 4]
 } else {
     puts "Error"
-    puts "Usage: $argv0 cenario"
-    puts "Usage: $argv1 protocol"
-    puts "Usage: $argv2 window"
-    puts "Usage: $argv3 break"
-    puts "Usage: $argv4 speed"
+    puts "Usage: argv0 cenario"
+    puts "Usage: argv1 protocol"
+    puts "Usage: argv2 window"
+    puts "Usage: argv3 break"
+    puts "Usage: argv4 speed"
     exit 1
 }
 
