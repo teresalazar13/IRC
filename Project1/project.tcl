@@ -153,8 +153,9 @@ if {$cenario == 2} {
 }
 
 if {$break == 1} {
-    $ns rtmodel-at 0.75 down $n2 $n5
-    $ns rtmodel-at 0.9 up $n2 $n5
+    #start at 0.5 seconds down 0.75 seconds after and up again 0.9 seconds after start
+    $ns rtmodel-at 1.25 down $n2 $n5
+    $ns rtmodel-at 1.40 up $n2 $n5
 }
 
 $ns at 0.5 "$cbr0 start"
