@@ -4,14 +4,14 @@
 * USO: >cliente <enderecoServidor> <porto> <Palavra>
 *************************************************************/
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
+#include <netdb.h>
 #include <netinet/in.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include <unistd.h>
-#include <netdb.h>
 
 void erro(char *msg);
 
@@ -30,17 +30,27 @@ int main(int argc, char *argv[]) {
   if ((hostPtr = gethostbyname(endServer)) == 0) // Converte nome para endereço
     erro("Nao consegui obter endereço");
 
-  bzero((void *) &addr, sizeof(addr));
+  bzero((void *)&addr, sizeof(addr));
   addr.sin_family = AF_INET;
-  addr.sin_addr.s_addr = ((struct in_addr *) (hostPtr->h_addr))->s_addr;
-  addr.sin_port = htons((short) atoi(argv[2]));
+  addr.sin_addr.s_addr = ((struct in_addr *)(hostPtr->h_addr))->s_addr;
+  addr.sin_port = htons((short)atoi(argv[2]));
 
-  if((fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) // Cria um novo socket
+  if ((fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) // Cria um novo socket
     erro("socket");
-  if(connect(fd, (struct sockaddr *) &addr, sizeof (addr)) < 0) // Inicia uma ligação num socket
+  if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) <
+      0) // Inicia uma ligação num socket
     erro("Connect");
 
   write(fd, argv[3], 1 + strlen(argv[3]));
+
+  int nread = 0;
+  char buffer[1024];
+
+  nread = read(fd, buffer, 1024 - 1);
+  buffer[nread] = '\0';
+
+  printf("recieved: %s\n", buffer);
+
   close(fd);
   exit(0);
 }
