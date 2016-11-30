@@ -2,6 +2,7 @@
 
 import socket               # Import socket module
 import sys
+import json
 
 
 def create_socket(port):
@@ -22,8 +23,8 @@ def server(port):
         try:
             request = client.recv(1024)
         except KeyboardInterrupt:
-            s.close()
             sys.exit(1)
+            client.close()
         option = request.decode("utf-8")
         print option
 
