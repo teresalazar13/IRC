@@ -8,7 +8,7 @@ def create_socket(port):
     host = socket.gethostname()
     s.bind((host, port))
     s.listen(5)
-    print("Socket creation sucefull")
+    print("Socket creation successfull")
     return s
 
 

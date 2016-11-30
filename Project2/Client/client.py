@@ -16,7 +16,7 @@ def create_socket(port):
     except socket.error as e:
         print(e)
         sys.exit(1)
-    print("Socket created succefully")
+    print("Socket created successfully")
     return client_socket
 
 
