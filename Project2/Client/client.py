@@ -28,11 +28,12 @@ def main():
 
     while True:
         choice = menu()
+        conn.send(choice.encode("utf-8"))
 
 
 def menu():
     option = input("1 LIST_MESS - para listar todas as mensagens por ler.\n2 LIST_USERS - para listar todos os clientes autorizados.\n3 SEND_MESS - para enviar uma mensagem para um cliente (autorizado).\n4 LIST_READ - para listar todas as mensagens ja lidas.\n5 REMOVE_MES - para apagar mensagens.\n6 CHANGE_PASSW - alterar a password\n7 OPER - para o cliente obter os privilegios do operador.\n8 QUIT - para o cliente abandonar o sistema.\n")
-    return option
+    return str(option)
 
 
 if __name__ == '__main__':
