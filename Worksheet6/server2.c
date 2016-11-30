@@ -58,8 +58,11 @@ void process_client(int client_fd, unsigned long endereco,
                     unsigned short porto) {
 
   char send[BUF_SIZE];
+  char ip4[BUF_SIZE];
 
-  sprintf(send, "IPv4: %lu PORTO: %hu\n", endereco, porto);
+  inet_ntop(AF_INET, &endereco, ip4, BUF_SIZE);
+
+  sprintf(send, "IPv4: %s PORTO: %hu\n", ip4, porto);
 
   printf("sent: %s", send);
   write(client_fd, (void *)send, sizeof(char) * BUF_SIZE);
