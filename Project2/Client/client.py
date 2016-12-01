@@ -22,32 +22,48 @@ def create_socket(port):
 
 
 def main():
-    users_and_files = {}
-    loggedin_user = []
     server_port = 9000
     conn = create_socket(server_port)
-    user = login()
-    conn.send(user.encode("utf-8"))
-
     while True:
         try:
-            choice = menu()
-            conn.send(choice.encode("utf-8"))
+            option = menu()
+            if option == "0":
+                user = login()
+                conn.send(user.encode("utf-8"))
+            elif option == "1":
+                conn.send(option.encode("utf-8"))
+            elif option == "2":
+                conn.send(option.encode("utf-8"))
+            elif option == "3":
+                conn.send(option.encode("utf-8"))
+            elif option == "4":
+                conn.send(option.encode("utf-8"))
+            elif option == "5":
+                conn.send(option.encode("utf-8"))
+            elif option == "6":
+                conn.send(option.encode("utf-8"))
+            elif option == "7":
+                conn.send(option.encode("utf-8"))
+            elif option == "8":
+                conn.send(option.encode("utf-8"))
+                close_connection(conn)
+                return
+            else:
+                print("Invalid option")
         except KeyboardInterrupt:
-            conn.close()
-            sys.exit(1)
+            close_connection(conn)
 
 
 def menu():
-    option = input("1 LIST_MESS - para listar todas as mensagens por ler."
-                            "\n2 LIST_USERS - para listar todos os clientes autorizados."
-                            "\n3 SEND_MESS - para enviar uma mensagem para um cliente (autorizado)."
-                            "\n4 LIST_READ - para listar todas as mensagens ja lidas."
-                            "\n5 REMOVE_MES - para apagar mensagens."
-                            "\n6 CHANGE_PASSW - alterar a password"
-                            "\n7 OPER - para o cliente obter os privilegios do operador."
-                            "\n8 QUIT - para o cliente abandonar o sistema.\n")
-    return option
+    option = input("1 - Listar todas as mensagens por ler\n"
+                    "2 - Listar todos os clientes autorizados\n"
+                    "3 - Enviar uma mensagem para um cliente (autorizado)\n"
+                    "4 - Listar todas as mensagens ja lidas.\n"
+                    "5 - Apagar mensagens.\n"
+                    "6 - Alterar a password\n"
+                    "7 - Obter privilegios do operador\n"
+                    "8 - Abandonar o sistema\n")
+    return str(option)
 
 
 def login():
@@ -56,6 +72,11 @@ def login():
     user = [username, password]
     request = json.dumps(user)
     return request
+
+
+def close_connection(conn):
+    conn.close()
+    sys.exit(1)
 
 if __name__ == '__main__':
     main()

@@ -16,21 +16,24 @@ def create_socket(port):
 
 def server(port):
     server_socket = create_socket(port)
-    client, address = server_socket.accept()
     print "The server is ready to receive"
-
     while True:
+        client, address = server_socket.accept()
         try:
             request = client.recv(1024)
         except KeyboardInterrupt:
             sys.exit(1)
             client.close()
         option = request.decode("utf-8")
-        print option
+        if option == "0":
+            user = request.decode("utf-8")
+        if option == "8":
+            print("Client with address", address, " closed connection")
+            client.close()
 
 
 def main():
-    print "Hello World"
+    print("Hello World")
     server(9000)
 
 
