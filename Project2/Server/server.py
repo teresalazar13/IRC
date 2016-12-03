@@ -51,6 +51,9 @@ def process_client_request(client, address, option):
             client.send("1".encode("utf-8"))
         else:
             client.send("0".encode("utf-8"))
+    elif option == "1":
+        username = list_unread_messages_client(client, address)
+        mark_messages_read(client, address, username)
     elif option == "2":
         list_of_clients = list_clients()
         client.send(list_of_clients.encode("utf-8"))
@@ -59,25 +62,65 @@ def process_client_request(client, address, option):
 
 
 def check_user(user):
-    file = open("clients.txt", "r")
-    for line in file:
+    f = open("clients.txt", "r")
+    for line in f:
         line = line.strip("\n")
         separated_info = line.split(',')
         if separated_info[0] == user[0] and separated_info[1] == user[1]:
-            file.close()
+            f.close()
             return True
-    file.close()
+    f.close()
     return False
 
 
+def list_unread_messages_client(client, address):
+    try:
+        request = client.recv(1024)
+    except KeyboardInterrupt:
+        sys.exit(1)
+        client.close()
+    unread_messages = ""
+    username = request.decode("utf-8")
+    f = open("messages.txt", "r")
+    for line in f:
+        line = line.strip("\n")
+        separated_info = line.split('|')
+        if separated_info[2] == username and separated_info[3] == "0":
+            unread_messages += separated_info[0] + " send you:\n" + separated_info[1] + "\n"
+    if unread_messages != "":
+        client.send(unread_messages.encode("utf-8"))
+    else:
+        client.send("0".encode("utf-8"))
+    return username
+    f.close()
+
+
+def mark_messages_read(client, address, username):
+    f = open("messages.txt", "r")
+    lines = ""
+    for line in f:
+        line = line.strip("\n")
+        separated_info = line.split('|')
+        if separated_info[2] == username:
+            line_read = line[:-1]
+            line_read = line_read + "1" + "\n"
+            lines += line_read
+        else:
+            line = line + "\n"
+            lines += line
+    f.close()
+    f = open("messages.txt", "w")
+    f.write(lines)
+    f.close()
+
 def list_clients():
     users = ""
-    file = open("clients.txt", "r")
-    for line in file:
+    f = open("clients.txt", "r")
+    for line in f:
         line = line.strip("\n")
         separated_info = line.split(',')
         users += separated_info[0] + "\n"
-    file.close()
+    f.close()
     return users
 
 
@@ -98,21 +141,21 @@ def send_message(client, address):
 
 
 def check_username(username):
-    file = open("clients.txt", "r")
-    for line in file:
+    f = open("clients.txt", "r")
+    for line in f:
         line = line.strip("\n")
         separated_info = line.split(',')
         if separated_info[0] == username:
-            file.close()
+            f.close()
             return True
-    file.close()
+    f.close()
     return False
 
 
 def write_message(message):
-    file = open("messages.txt", "a")
-    file.write(message[0] + "|" + message[1] + "|" + message[2] + "\n")
-    file.close()
+    f = open("messages.txt", "a")
+    f.write(message[0] + "|" + message[1] + "|" + message[2] + "|" + "0" +"\n")
+    f.close()
 
 
 def main():

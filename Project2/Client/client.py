@@ -41,10 +41,7 @@ def main():
                 else:
                     print "Username or password incorrect"
             elif option == "1":
-                if user == []:
-                    print "Please login first"
-                else:
-                    print "LIST OF ALL YOUR MESSAGES"
+                list_unread_messages(conn, user)
             elif option == "2":
                 print "LIST OF AUTHORIZED CLIENTS"
                 print conn.recv(1024).decode("utf-8")
@@ -88,25 +85,37 @@ def login():
     return [request, user]
 
 
+def list_unread_messages(conn, user):
+    if user == []:
+        print "Please login first"
+        return
+    conn.send(user[0].encode("utf-8"))
+    messages = conn.recv(1024).decode("utf-8")
+    if messages != "0":
+        print "LIST OF ALL YOUR MESSAGES"
+        print messages
+    else:
+        print "You have no unread messages"
+
 def send_message(conn, user):
     if user == []:
         print "Please login first"
         return
+    receiver = input("Who do you wish to send your message? ")
+    message_text = input("Please write your message: ")
+    message = [user[0], message_text, receiver]
+    message = json.dumps(message)
+    conn.send(message.encode("utf-8"))
+    if conn.recv(1024).decode("utf-8") == "1":
+        print "Message was sent to", receiver
     else:
-        receiver = input("Who do you wish to send your message? ")
-        message_text = input("Please write your message: ")
-        message = [user[0], message_text, receiver]
-        message = json.dumps(message)
-        conn.send(message.encode("utf-8"))
-        if conn.recv(1024).decode("utf-8") == "1":
-            print "Message was sent to", receiver
-        else:
-            print "Can't send message to", receiver, ". User is not valid."
+        print "Can't send message to", receiver, ". User is not valid."
 
 
 def close_connection(conn):
     conn.close()
     sys.exit(1)
+
 
 if __name__ == '__main__':
     main()
