@@ -27,26 +27,32 @@ def main():
     while True:
         try:
             option = menu()
+            conn.send(option.encode("utf-8"))
             if option == "0":
                 user = login()
-                conn.send(option.encode("utf-8"))
-                conn.send(user.encode("utf-8"))
+                user_string = user[0]
+                user_array = user[1]
+                conn.send(user_string.encode("utf-8"))
+                check_user = conn.recv(1024).decode("utf-8");
+                if check_user == "1":
+                    print "Welcome", user_array[0] , "!"
+                else:
+                    print "Username or password incorrect"
             elif option == "1":
-                conn.send(option.encode("utf-8"))
+                print "oi"
             elif option == "2":
-                conn.send(option.encode("utf-8"))
+                print "oi"
             elif option == "3":
-                conn.send(option.encode("utf-8"))
+                print "oi"
             elif option == "4":
-                conn.send(option.encode("utf-8"))
+                print "oi"
             elif option == "5":
-                conn.send(option.encode("utf-8"))
+                print "oi"
             elif option == "6":
-                conn.send(option.encode("utf-8"))
+                print "oi"
             elif option == "7":
-                conn.send(option.encode("utf-8"))
+                print "oi"
             elif option == "8":
-                conn.send(option.encode("utf-8"))
                 close_connection(conn)
                 return
             else:
@@ -72,7 +78,7 @@ def login():
     password = input("Password: ")
     user = [username, password]
     request = json.dumps(user)
-    return request
+    return [request, user]
 
 
 def close_connection(conn):
