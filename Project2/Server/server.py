@@ -48,18 +48,18 @@ def process_client_request(client, address, option):
         user = request.decode("utf-8")
         user = json.loads(user)
         if check_user(user) == True:
-            print "User is valid"
             client.send("1".encode("utf-8"))
         else:
-            print "User is not valid"
             client.send("0".encode("utf-8"))
     elif option == "2":
         list_of_clients = list_clients()
         client.send(list_of_clients.encode("utf-8"))
+    elif option == "3":
+        send_message(client, address)
 
 
 def check_user(user):
-    file = open("dataBase.txt", "r")
+    file = open("clients.txt", "r")
     for line in file:
         line = line.strip("\n")
         separated_info = line.split(',')
@@ -72,7 +72,7 @@ def check_user(user):
 
 def list_clients():
     users = ""
-    file = open("dataBase.txt", "r")
+    file = open("clients.txt", "r")
     for line in file:
         line = line.strip("\n")
         separated_info = line.split(',')
@@ -80,6 +80,32 @@ def list_clients():
     file.close()
     return users
 
+
+def send_message(client, address):
+    try:
+        request = client.recv(1024)
+    except KeyboardInterrupt:
+        sys.exit(1)
+        client.close()
+    message = request.decode("utf-8")
+    message = json.loads(message)
+    if check_username(message[2]):
+        client.send("1".encode("utf-8"))
+    else:
+        client.send("0".encode("utf-8"))
+        return
+
+
+def check_username(username):
+    file = open("clients.txt", "r")
+    for line in file:
+        line = line.strip("\n")
+        separated_info = line.split(',')
+        if separated_info[0] == username:
+            file.close()
+            return True
+    file.close()
+    return False
 
 def main():
     print "Hello World"

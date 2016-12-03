@@ -24,26 +24,32 @@ def create_socket(port):
 def main():
     server_port = 9000
     conn = create_socket(server_port)
+    user = []
     while True:
         try:
             option = menu()
             conn.send(option.encode("utf-8"))
             if option == "0":
-                user = login()
-                user_string = user[0]
-                user_array = user[1]
+                user_login = login()
+                user_string = user_login[0]
+                user_array = user_login[1]
                 conn.send(user_string.encode("utf-8"))
                 check_user = conn.recv(1024).decode("utf-8")
                 if check_user == "1":
-                    print "Welcome", user_array[0] , "!"
+                    print "Welcome", user_array[0], "!"
+                    user = user_array
                 else:
                     print "Username or password incorrect"
             elif option == "1":
-                print "oi"
+                if user == []:
+                    print "Please login first"
+                else:
+                    print "LIST OF ALL YOUR MESSAGES"
             elif option == "2":
+                print "LIST OF AUTHORIZED CLIENTS"
                 print conn.recv(1024).decode("utf-8")
             elif option == "3":
-                print "oi"
+                send_message(conn, user)
             elif option == "4":
                 print "oi"
             elif option == "5":
@@ -80,6 +86,22 @@ def login():
     user = [username, password]
     request = json.dumps(user)
     return [request, user]
+
+
+def send_message(conn, user):
+    if user == []:
+        print "Please login first"
+        return
+    else:
+        receiver = input("Who do you wish to send your message? ")
+        message_text = input("Please write your message: ")
+        message = [user[0], message_text, receiver]
+        message = json.dumps(message)
+        conn.send(message.encode("utf-8"))
+        if conn.recv(1024).decode("utf-8") == "1":
+            print "Message was sent to", receiver
+        else:
+            print "Can't send message to", receiver, ". User is not valid."
 
 
 def close_connection(conn):
