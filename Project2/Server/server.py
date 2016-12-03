@@ -91,6 +91,7 @@ def send_message(client, address):
     message = json.loads(message)
     if check_username(message[2]):
         client.send("1".encode("utf-8"))
+        write_message(message)
     else:
         client.send("0".encode("utf-8"))
         return
@@ -106,6 +107,13 @@ def check_username(username):
             return True
     file.close()
     return False
+
+
+def write_message(message):
+    file = open("messages.txt", "a")
+    file.write(message[0] + "|" + message[1] + "|" + message[2] + "\n")
+    file.close()
+
 
 def main():
     print "Hello World"
