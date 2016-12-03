@@ -21,10 +21,9 @@ def server(port):
     while True:
         client, address = server_socket.accept()
         thread.start_new_thread(process_client, (client, address))
-        # process_client(client, option)
 
 
-def process_client(client, option):
+def process_client(client, adress):
     while True:
         try:
             request = client.recv(1024)
@@ -34,9 +33,13 @@ def process_client(client, option):
         option = request.decode("utf-8")
         print option
         if option == "0":
-            request = client.recv(1024)
+            try:
+                request = client.recv(1024)
+            except KeyboardInterrupt:
+                sys.exit(1)
+                client.close()
             user = request.decode("utf-8")
-            print(user)
+            user = json.loads(user)
             if check_user(user) == True:
                 print "User is valid"
             else:
@@ -44,13 +47,15 @@ def process_client(client, option):
         if option == "8":
             print("Client with address", address, " closed connection")
             client.close()
-            
+
 
 def check_user(user):
     file = open("dataBase.txt", "r")
     for line in file:
         line = line.strip("\n")
         separated_info = line.split(',')
+        print(separated_info[0])
+        print(separated_info[1])
         if separated_info[0] == user[0] and separated_info[1] == user[1]:
             file.close()
             return True
