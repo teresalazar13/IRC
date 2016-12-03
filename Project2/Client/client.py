@@ -41,14 +41,14 @@ def main():
                 else:
                     print "Username or password incorrect"
             elif option == "1":
-                list_unread_messages(conn, user)
+                list_messages(conn, user, 0)
             elif option == "2":
                 print "LIST OF AUTHORIZED CLIENTS"
                 print conn.recv(1024).decode("utf-8")
             elif option == "3":
                 send_message(conn, user)
             elif option == "4":
-                print "oi"
+                list_messages(conn, user, 1)
             elif option == "5":
                 print "oi"
             elif option == "6":
@@ -85,17 +85,20 @@ def login():
     return [request, user]
 
 
-def list_unread_messages(conn, user):
+def list_messages(conn, user, read):
     if user == []:
         print "Please login first"
         return
     conn.send(user[0].encode("utf-8"))
     messages = conn.recv(1024).decode("utf-8")
     if messages != "0":
-        print "LIST OF ALL YOUR MESSAGES"
+        print "LIST OF YOUR MESSAGES"
         print messages
     else:
-        print "You have no unread messages"
+        if read == 0:
+            print "You have no unread messages"
+        if read == 1:
+            print "You have no read messages"
 
 def send_message(conn, user):
     if user == []:

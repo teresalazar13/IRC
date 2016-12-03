@@ -52,13 +52,15 @@ def process_client_request(client, address, option):
         else:
             client.send("0".encode("utf-8"))
     elif option == "1":
-        username = list_unread_messages_client(client, address)
+        username = list_messages_client(client, address, 0)
         mark_messages_read(client, address, username)
     elif option == "2":
         list_of_clients = list_clients()
         client.send(list_of_clients.encode("utf-8"))
     elif option == "3":
         send_message(client, address)
+    elif option == "4":
+        username = list_messages_client(client, address, 1)
 
 
 def check_user(user):
@@ -73,7 +75,7 @@ def check_user(user):
     return False
 
 
-def list_unread_messages_client(client, address):
+def list_messages_client(client, address, read):
     try:
         request = client.recv(1024)
     except KeyboardInterrupt:
@@ -85,7 +87,9 @@ def list_unread_messages_client(client, address):
     for line in f:
         line = line.strip("\n")
         separated_info = line.split('|')
-        if separated_info[2] == username and separated_info[3] == "0":
+        if read == 0 and separated_info[2] == username and separated_info[3] == "0":
+            unread_messages += separated_info[0] + " send you:\n" + separated_info[1] + "\n"
+        if read == 1 and separated_info[2] == username and separated_info[3] == "1":
             unread_messages += separated_info[0] + " send you:\n" + separated_info[1] + "\n"
     if unread_messages != "":
         client.send(unread_messages.encode("utf-8"))
