@@ -1,4 +1,2 @@
-teresa|pizaaa please[D[D[D[D[D|miguel|1
 miguel|faz TI|goa|1
-teresa|socorro|goa|1
-teresa|help|goa|1
+teresa|socorro|miguel|1

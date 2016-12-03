@@ -1,6 +1,4 @@
-#!/usr/bin/python           # This is server.py file
-
-import socket               # Import socket module
+import socket
 import sys
 import json
 import thread
@@ -61,6 +59,8 @@ def process_client_request(client, address, option):
         send_message(client, address)
     elif option == "4":
         username = list_messages_client(client, address, 1)
+    elif option == "5":
+        delete_message(client, address)
 
 
 def check_user(user):
@@ -81,18 +81,22 @@ def list_messages_client(client, address, read):
     except KeyboardInterrupt:
         sys.exit(1)
         client.close()
-    unread_messages = ""
+    counter = 1
+    messages = ""
     username = request.decode("utf-8")
     f = open("messages.txt", "r")
     for line in f:
         line = line.strip("\n")
         separated_info = line.split('|')
         if read == 0 and separated_info[2] == username and separated_info[3] == "0":
-            unread_messages += separated_info[0] + " send you:\n" + separated_info[1] + "\n"
+            messages += separated_info[0] + " send you:\n" + separated_info[1] + "\n"
         if read == 1 and separated_info[2] == username and separated_info[3] == "1":
-            unread_messages += separated_info[0] + " send you:\n" + separated_info[1] + "\n"
-    if unread_messages != "":
-        client.send(unread_messages.encode("utf-8"))
+            messages += separated_info[0] + " send you:\n" + separated_info[1] + "\n"
+        if read == 2 and separated_info[2] == username:
+            messages += str(counter) + "-" + separated_info[0] + " send you:\n" + separated_info[1] + "\n"
+        counter += 1
+    if messages != "":
+        client.send(messages.encode("utf-8"))
     else:
         client.send("0".encode("utf-8"))
     return username
@@ -116,6 +120,7 @@ def mark_messages_read(client, address, username):
     f = open("messages.txt", "w")
     f.write(lines)
     f.close()
+
 
 def list_clients():
     users = ""
@@ -160,6 +165,41 @@ def write_message(message):
     f = open("messages.txt", "a")
     f.write(message[0] + "|" + message[1] + "|" + message[2] + "|" + "0" +"\n")
     f.close()
+
+
+def delete_message(client, address):
+    username = list_messages_client(client, address, 2)
+    try:
+        request = client.recv(1024)
+    except KeyboardInterrupt:
+        sys.exit(1)
+        client.close()
+    message = int(request.decode("utf-8"))
+    f = open("messages.txt", "r")
+    counter = 0
+    counter_array = []
+    lines = ""
+    for line in f:
+        counter += 1
+        counter_array.append(counter)
+        line = line.strip("\n")
+        separated_info = line.split('|')
+        if message != counter:
+            lines += line + "\n"
+        else:
+            if separated_info[2] != username:
+                client.send("0".encode("utf-8"))
+                return
+    f.close()
+    f = open("messages.txt", "w")
+    f.write(lines)
+    f.close()
+    print counter_array
+    print message
+    if message not in counter_array:
+        client.send("-1".encode("utf-8"))
+        return
+    client.send("1".encode("utf-8"))
 
 
 def main():

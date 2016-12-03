@@ -1,6 +1,4 @@
-#!/usr/bin/python           # This is client.py file
-
-import socket               # Import socket module
+import socket
 import sys
 import json
 
@@ -50,7 +48,7 @@ def main():
             elif option == "4":
                 list_messages(conn, user, 1)
             elif option == "5":
-                print "oi"
+                delete_message(conn, user)
             elif option == "6":
                 print "oi"
             elif option == "7":
@@ -69,8 +67,8 @@ def menu():
                     "1 - Listar todas as mensagens por ler\n"
                     "2 - Listar todos os clientes autorizados\n"
                     "3 - Enviar uma mensagem para um cliente (autorizado)\n"
-                    "4 - Listar todas as mensagens ja lidas.\n"
-                    "5 - Apagar mensagens.\n"
+                    "4 - Listar todas as mensagens ja lidas\n"
+                    "5 - Apagar mensagens\n"
                     "6 - Alterar a password\n"
                     "7 - Obter privilegios do operador\n"
                     "8 - Abandonar o sistema\n")
@@ -99,6 +97,10 @@ def list_messages(conn, user, read):
             print "You have no unread messages"
         if read == 1:
             print "You have no read messages"
+        if read == 2:
+            print "There are no messages to delete"
+            return False
+
 
 def send_message(conn, user):
     if user == []:
@@ -113,6 +115,20 @@ def send_message(conn, user):
         print "Message was sent to", receiver
     else:
         print "Can't send message to", receiver, ". User is not valid."
+
+
+def delete_message(conn, user):
+    if list_messages(conn, user, 2) == False or user == []:
+        return
+    message_number = input("Which message do you want do delete? Please select a number: ")
+    conn.send(str(message_number).encode("utf-8"))
+    check = conn.recv(1024).decode("utf-8");
+    if check == "1":
+        print "Message deleted successfully"
+    elif check == "0":
+        print "Could not delete the desired message. The message you chose is not yours to delete."
+    else:
+        print "Invalid input."
 
 
 def close_connection(conn):
