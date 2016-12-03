@@ -33,7 +33,7 @@ def main():
                 user_string = user[0]
                 user_array = user[1]
                 conn.send(user_string.encode("utf-8"))
-                check_user = conn.recv(1024).decode("utf-8");
+                check_user = conn.recv(1024).decode("utf-8")
                 if check_user == "1":
                     print "Welcome", user_array[0] , "!"
                 else:
@@ -41,7 +41,7 @@ def main():
             elif option == "1":
                 print "oi"
             elif option == "2":
-                print "oi"
+                print conn.recv(1024).decode("utf-8")
             elif option == "3":
                 print "oi"
             elif option == "4":
@@ -62,7 +62,8 @@ def main():
 
 
 def menu():
-    option = input("1 - Listar todas as mensagens por ler\n"
+    option = input("0 - Login\n"
+                    "1 - Listar todas as mensagens por ler\n"
                     "2 - Listar todos os clientes autorizados\n"
                     "3 - Enviar uma mensagem para um cliente (autorizado)\n"
                     "4 - Listar todas as mensagens ja lidas.\n"

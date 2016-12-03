@@ -11,7 +11,7 @@ def create_socket(port):
     host = socket.gethostname()
     s.bind((host, port))
     s.listen(5)
-    print("Socket creation successfull")
+    print "Socket creation successfull"
     return s
 
 
@@ -31,6 +31,10 @@ def process_client(client, address):
             sys.exit(1)
             client.close()
         option = request.decode("utf-8")
+        if option == "8":
+            print "Client with address", address, "closed connection"
+            client.close()
+            return
         process_client_request(client, address, option)
 
 
@@ -49,9 +53,9 @@ def process_client_request(client, address, option):
         else:
             print "User is not valid"
             client.send("0".encode("utf-8"))
-    if option == "8":
-        print("Client with address", address, " closed connection")
-        client.close()
+    elif option == "2":
+        list_of_clients = list_clients()
+        client.send(list_of_clients.encode("utf-8"))
 
 
 def check_user(user):
@@ -66,8 +70,19 @@ def check_user(user):
     return False
 
 
+def list_clients():
+    users = ""
+    file = open("dataBase.txt", "r")
+    for line in file:
+        line = line.strip("\n")
+        separated_info = line.split(',')
+        users += separated_info[0] + "\n"
+    file.close()
+    return users
+
+
 def main():
-    print("Hello World")
+    print "Hello World"
     server(9000)
 
 
