@@ -29,6 +29,7 @@ def main():
             option = menu()
             if option == "0":
                 user = login()
+                conn.send(option.encode("utf-8"))
                 conn.send(user.encode("utf-8"))
             elif option == "1":
                 conn.send(option.encode("utf-8"))
