@@ -61,6 +61,8 @@ def process_client_request(client, address, option):
         username = list_messages_client(client, address, 1)
     elif option == "5":
         delete_message(client, address)
+    elif option == "6":
+        change_password(client, address)
 
 
 def check_user(user):
@@ -194,12 +196,36 @@ def delete_message(client, address):
     f = open("messages.txt", "w")
     f.write(lines)
     f.close()
-    print counter_array
-    print message
     if message not in counter_array:
         client.send("-1".encode("utf-8"))
         return
     client.send("1".encode("utf-8"))
+
+
+def change_password(client, address):
+    try:
+        request = client.recv(1024)
+    except KeyboardInterrupt:
+        sys.exit(1)
+        client.close()
+    user = request.decode("utf-8")
+    user = json.loads(user)
+    username = user[0]
+    new_password = user[1]
+    print new_password
+    lines = ""
+    f = open("clients.txt", "r")
+    for line in f:
+        line = line.strip("\n")
+        separated_info = line.split(',')
+        if separated_info[0] == username:
+            lines += separated_info[0] + "," + new_password + "\n"
+        else:
+            lines += line + "\n"
+    f.close()
+    f = open("clients.txt", "w")
+    f.write(lines)
+    f.close()
 
 
 def main():

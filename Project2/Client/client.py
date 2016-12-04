@@ -26,8 +26,8 @@ def main():
     while True:
         try:
             option = menu()
-            conn.send(option.encode("utf-8"))
             if option == "0":
+                conn.send(option.encode("utf-8"))
                 user_login = login()
                 user_string = user_login[0]
                 user_array = user_login[1]
@@ -38,26 +38,31 @@ def main():
                     user = user_array
                 else:
                     print "Username or password incorrect"
-            elif option == "1":
-                list_messages(conn, user, 0)
             elif option == "2":
+                conn.send(option.encode("utf-8"))
                 print "LIST OF AUTHORIZED CLIENTS"
                 print conn.recv(1024).decode("utf-8")
-            elif option == "3":
-                send_message(conn, user)
-            elif option == "4":
-                list_messages(conn, user, 1)
-            elif option == "5":
-                delete_message(conn, user)
-            elif option == "6":
-                print "oi"
-            elif option == "7":
-                print "oi"
-            elif option == "8":
-                close_connection(conn)
-                return
+            elif option in ["1", "3", "4", "5", "6", "7", "8"] and user == []:
+                print "Please login first"
             else:
-                print("Invalid option")
+                conn.send(option.encode("utf-8"))
+                if option == "1":
+                    list_messages(conn, user, 0)
+                elif option == "3":
+                    send_message(conn, user)
+                elif option == "4":
+                    list_messages(conn, user, 1)
+                elif option == "5":
+                    delete_message(conn, user)
+                elif option == "6":
+                    change_password(conn, user)
+                elif option == "7":
+                    print "oi"
+                elif option == "8":
+                    close_connection(conn)
+                    return
+                else:
+                    print "Invalid option"
         except KeyboardInterrupt:
             close_connection(conn)
 
@@ -84,9 +89,6 @@ def login():
 
 
 def list_messages(conn, user, read):
-    if user == []:
-        print "Please login first"
-        return
     conn.send(user[0].encode("utf-8"))
     messages = conn.recv(1024).decode("utf-8")
     if messages != "0":
@@ -103,9 +105,6 @@ def list_messages(conn, user, read):
 
 
 def send_message(conn, user):
-    if user == []:
-        print "Please login first"
-        return
     receiver = input("Who do you wish to send your message? ")
     message_text = input("Please write your message: ")
     message = [user[0], message_text, receiver]
@@ -122,13 +121,21 @@ def delete_message(conn, user):
         return
     message_number = input("Which message do you want do delete? Please select a number: ")
     conn.send(str(message_number).encode("utf-8"))
-    check = conn.recv(1024).decode("utf-8");
+    check = conn.recv(1024).decode("utf-8")
     if check == "1":
         print "Message deleted successfully"
     elif check == "0":
         print "Could not delete the desired message. The message you chose is not yours to delete."
     else:
         print "Invalid input."
+
+
+def change_password(conn, user):
+    new_password = input("Please enter new password: ")
+    user = [user[0], new_password]
+    user = json.dumps(user)
+    conn.send(user.encode("utf-8"))
+    print "Password was changed successfully"
 
 
 def close_connection(conn):
