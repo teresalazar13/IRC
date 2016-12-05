@@ -3,6 +3,7 @@ import sys
 import json
 import thread
 import getopt
+import hashlib
 
 
 def create_socket(port):
@@ -71,7 +72,10 @@ def check_user(user):
     for line in f:
         line = line.strip("\n")
         separated_info = line.split(',')
-        if separated_info[0] == user[0] and separated_info[1] == user[1]:
+        password = hashlib.sha1()
+        password.update(user[1])
+        password = password.digest()
+        if separated_info[0] == user[0] and separated_info[1] == password:
             f.close()
             return True
     f.close()
@@ -212,7 +216,9 @@ def change_password(client, address):
     user = request.decode("utf-8")
     user = json.loads(user)
     username = user[0]
-    new_password = user[1]
+    new_password = hashlib.sha1()
+    new_password.update(user[1])
+    new_password = new_password.digest()
     print new_password
     lines = ""
     f = open("clients.txt", "r")
@@ -230,6 +236,19 @@ def change_password(client, address):
 
 
 def main(argv):
+    """teresa_pass = hashlib.sha1()
+    teresa_pass.update("salazar")
+    compare = teresa_pass;
+    goa_pass = hashlib.sha1()
+    goa_pass.update("amaral")
+    f = open("clients.txt", "w")
+    f.write("teresa,")
+    f.write(teresa_pass.digest())
+    f.write("\ngoa,")
+    f.write(goa_pass.digest())
+    f.write("\n")
+    f.close()"""
+
     print "Hello World"
     port = ''
     try:
