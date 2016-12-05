@@ -2,6 +2,7 @@ import socket
 import sys
 import json
 import thread
+import getopt
 
 
 def create_socket(port):
@@ -228,10 +229,26 @@ def change_password(client, address):
     f.close()
 
 
-def main():
+def main(argv):
     print "Hello World"
-    server(9000)
+    port = ''
+    try:
+        opts, args = getopt.getopt(argv, "hp:", ["pport="])
+    except getopt.GetoptError:
+        print 'server.py -p <port>'
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print 'server.py -p <port>'
+            sys.exit()
+        elif opt in ("-p", "--pport"):
+            port = arg
+    if port != "":
+        server(int(port))
+    else:
+        print 'ERROR - Usage: server.py -p <port>'
+        return
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

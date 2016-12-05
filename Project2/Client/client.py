@@ -1,26 +1,10 @@
 import socket
 import sys
 import json
+import getopt
 
 
-def create_socket(port):
-    try:
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    except socket.error as e:
-        print(e)
-        sys.exit(1)
-    host = socket.gethostname()
-    try:
-        client_socket.connect((host, port))
-    except socket.error as e:
-        print(e)
-        sys.exit(1)
-    print("Socket created successfully")
-    return client_socket
-
-
-def main():
-    server_port = 9000
+def client(server_port):
     conn = create_socket(server_port)
     user = []
     while True:
@@ -42,7 +26,11 @@ def main():
                 conn.send(option.encode("utf-8"))
                 print "LIST OF AUTHORIZED CLIENTS"
                 print conn.recv(1024).decode("utf-8")
-            elif option in ["1", "3", "4", "5", "6", "7", "8"] and user == []:
+            elif option == "8":
+                conn.send(option.encode("utf-8"))
+                close_connection(conn)
+                return
+            elif option in ["1", "3", "4", "5", "6", "7"] and user == []:
                 print "Please login first"
             else:
                 conn.send(option.encode("utf-8"))
@@ -58,13 +46,26 @@ def main():
                     change_password(conn, user)
                 elif option == "7":
                     print "oi"
-                elif option == "8":
-                    close_connection(conn)
-                    return
                 else:
                     print "Invalid option"
         except KeyboardInterrupt:
             close_connection(conn)
+
+
+def create_socket(port):
+    try:
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    except socket.error as e:
+        print(e)
+        sys.exit(1)
+    host = socket.gethostname()
+    try:
+        client_socket.connect((host, port))
+    except socket.error as e:
+        print(e)
+        sys.exit(1)
+    print("Socket created successfully")
+    return client_socket
 
 
 def menu():
@@ -143,5 +144,26 @@ def close_connection(conn):
     sys.exit(1)
 
 
+def main(argv):
+    print "Hello World"
+    port = ''
+    try:
+        opts, args = getopt.getopt(argv, "hp:", ["pport="])
+    except getopt.GetoptError:
+        print 'client.py -p <port>'
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print 'client.py -p <port>'
+            sys.exit()
+        elif opt in ("-p", "--pport"):
+            port = arg
+    if port != "":
+        client(int(port))
+    else:
+        print 'ERROR - Usage: client.py -p <port>'
+        return
+
+
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
