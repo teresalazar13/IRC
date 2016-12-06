@@ -253,9 +253,28 @@ def process_superuser(client, address):
     while True:
         request = client.recv(1024)
         option = request.decode("utf-8")
+        if option == "1":
+            request = client.recv(1024)
+            client_to_remove = request.decode("utf-8")
+            delete_client(client_to_remove)
         if option == "3":
             print "Superuser quit superuser mode"
             return
+
+
+def delete_client(client_to_remove):
+    text = ""
+    f = open("clients.txt", "r")
+    for line in f:
+        raw_line = line
+        line = line.strip("\n")
+        line = line.split(",")
+        if line[0] != client_to_remove:
+            text += raw_line
+    f.close()
+    f = open("clients.txt", "w")
+    f.write(text)
+    f.close()
 
 
 def main(argv):

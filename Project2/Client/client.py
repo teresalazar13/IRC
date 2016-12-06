@@ -168,7 +168,10 @@ def enter_superuser_mode(conn, user):
     while True:
         option = menu_superuser()
         conn.send(option.encode("utf-8"))
-        if option == "3":
+        if option == "1":
+            client_to_remove = raw_input("Which client do you want to remove: ")
+            conn.send(client_to_remove.encode("utf-8"))
+        elif option == "3":
             print "Quitting superuser mode"
             return
 
