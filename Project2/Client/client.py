@@ -25,7 +25,7 @@ def client(server_port):
                 conn.send(option.encode("utf-8"))
                 close_connection(conn)
                 return
-            elif option in ["2", "4", "5", "6", "7", "8"] and user == []:
+            elif option in ["2", "4", "5", "6", "7", "8"] and (user == [] or user == None):
                 print "Please login first"
             else:
                 conn.send(option.encode("utf-8"))
@@ -102,6 +102,7 @@ def login(conn):
 
 
 def list_messages(conn, user, read):
+    print user[0]
     conn.send(user[0].encode("utf-8"))
     messages = conn.recv(1024).decode("utf-8")
     if messages != "0":
