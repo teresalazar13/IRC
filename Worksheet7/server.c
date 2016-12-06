@@ -32,7 +32,7 @@ int main(void) {
     erro("Erro no bind");
   }
 
-  // Espera recepção de mensagem (a chamada é bloqueante)
+  // Espera recepção de mensagem
   if((recv_len = recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *) &si_outra, &slen)) == -1) {
     erro("Erro no recvfrom");
   }
@@ -48,4 +48,4 @@ int main(void) {
   return 0;
 }
 
-// nc -v -u 192.168.1.153 9876
+// nc -v -u 127.0.0.1 9876

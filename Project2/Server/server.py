@@ -25,13 +25,9 @@ def server(port):
 
 def process_client(client, address):
     while True:
-        try:
-            request = client.recv(1024)
-        except KeyboardInterrupt:
-            sys.exit(1)
-            client.close()
+        request = client.recv(1024)
         option = request.decode("utf-8")
-        if option == "8":
+        if option == "9":
             print "Client with address", address, "closed connection"
             client.close()
             return
@@ -40,34 +36,42 @@ def process_client(client, address):
 
 def process_client_request(client, address, option):
     if option == "0":
-        try:
-            request = client.recv(1024)
-        except KeyboardInterrupt:
-            sys.exit(1)
-            client.close()
-        user = request.decode("utf-8")
-        user = json.loads(user)
-        if check_user(user) == True:
-            client.send("1".encode("utf-8"))
-        else:
-            client.send("0".encode("utf-8"))
+        register(client, address)
     elif option == "1":
+        check_user(client, address)
+    elif option == "2":
         username = list_messages_client(client, address, 0)
         mark_messages_read(client, address, username)
-    elif option == "2":
-        list_of_clients = list_clients()
-        client.send(list_of_clients.encode("utf-8"))
     elif option == "3":
-        send_message(client, address)
+        client.send(list_clients().encode("utf-8"))
     elif option == "4":
-        username = list_messages_client(client, address, 1)
+        send_message(client, address)
     elif option == "5":
-        delete_message(client, address)
+        username = list_messages_client(client, address, 1)
     elif option == "6":
+        delete_message(client, address)
+    elif option == "7":
         change_password(client, address)
 
 
-def check_user(user):
+def register(client, address):
+    request = client.recv(1024)
+    user = request.decode("utf-8")
+    user = json.loads(user)
+    user_pass = hashlib.sha1()
+    user_pass.update(user[1])
+    f = open("clients.txt", "a")
+    f.write(user[0])
+    f.write(",")
+    f.write(user_pass.digest())
+    f.write("\n")
+    f.close()
+
+
+def check_user(client, address):
+    request = client.recv(1024)
+    user = request.decode("utf-8")
+    user = json.loads(user)
     f = open("clients.txt", "r")
     for line in f:
         line = line.strip("\n")
@@ -77,17 +81,14 @@ def check_user(user):
         password = password.digest()
         if separated_info[0] == user[0] and separated_info[1] == password:
             f.close()
-            return True
+            client.send("1".encode("utf-8"))
+            return
     f.close()
-    return False
+    client.send("0".encode("utf-8"))
 
 
 def list_messages_client(client, address, read):
-    try:
-        request = client.recv(1024)
-    except KeyboardInterrupt:
-        sys.exit(1)
-        client.close()
+    request = client.recv(1024)
     counter = 1
     messages = ""
     username = request.decode("utf-8")
@@ -141,11 +142,7 @@ def list_clients():
 
 
 def send_message(client, address):
-    try:
-        request = client.recv(1024)
-    except KeyboardInterrupt:
-        sys.exit(1)
-        client.close()
+    request = client.recv(1024)
     message = request.decode("utf-8")
     message = json.loads(message)
     if check_username(message[2]):
@@ -176,11 +173,7 @@ def write_message(message):
 
 def delete_message(client, address):
     username = list_messages_client(client, address, 2)
-    try:
-        request = client.recv(1024)
-    except KeyboardInterrupt:
-        sys.exit(1)
-        client.close()
+    request = client.recv(1024)
     message = int(request.decode("utf-8"))
     f = open("messages.txt", "r")
     counter = 0
@@ -208,11 +201,7 @@ def delete_message(client, address):
 
 
 def change_password(client, address):
-    try:
-        request = client.recv(1024)
-    except KeyboardInterrupt:
-        sys.exit(1)
-        client.close()
+    request = client.recv(1024)
     user = request.decode("utf-8")
     user = json.loads(user)
     username = user[0]

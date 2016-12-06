@@ -2,6 +2,7 @@ import socket
 import sys
 import json
 import getopt
+import getpass
 
 
 def client(server_port):
@@ -12,39 +13,33 @@ def client(server_port):
             option = menu()
             if option == "0":
                 conn.send(option.encode("utf-8"))
-                user_login = login()
-                user_string = user_login[0]
-                user_array = user_login[1]
-                conn.send(user_string.encode("utf-8"))
-                check_user = conn.recv(1024).decode("utf-8")
-                if check_user == "1":
-                    print "Welcome", user_array[0], "!"
-                    user = user_array
-                else:
-                    print "Username or password incorrect"
-            elif option == "2":
+                user = register(conn)
+            elif option == "1":
+                conn.send(option.encode("utf-8"))
+                user = login(conn)
+            elif option == "3":
                 conn.send(option.encode("utf-8"))
                 print "LIST OF AUTHORIZED CLIENTS"
                 print conn.recv(1024).decode("utf-8")
-            elif option == "8":
+            elif option == "9":
                 conn.send(option.encode("utf-8"))
                 close_connection(conn)
                 return
-            elif option in ["1", "3", "4", "5", "6", "7"] and user == []:
+            elif option in ["2", "4", "5", "6", "7", "8"] and user == []:
                 print "Please login first"
             else:
                 conn.send(option.encode("utf-8"))
-                if option == "1":
+                if option == "2":
                     list_messages(conn, user, 0)
-                elif option == "3":
-                    send_message(conn, user)
                 elif option == "4":
-                    list_messages(conn, user, 1)
+                    send_message(conn, user)
                 elif option == "5":
-                    delete_message(conn, user)
+                    list_messages(conn, user, 1)
                 elif option == "6":
-                    change_password(conn, user)
+                    delete_message(conn, user)
                 elif option == "7":
+                    change_password(conn, user)
+                elif option == "8":
                     print "oi"
                 else:
                     print "Invalid option"
@@ -69,24 +64,41 @@ def create_socket(port):
 
 
 def menu():
-    option = input("0 - Login\n"
-                    "1 - Listar todas as mensagens por ler\n"
-                    "2 - Listar todos os clientes autorizados\n"
-                    "3 - Enviar uma mensagem para um cliente (autorizado)\n"
-                    "4 - Listar todas as mensagens ja lidas\n"
-                    "5 - Apagar mensagens\n"
-                    "6 - Alterar a password\n"
-                    "7 - Obter privilegios do operador\n"
-                    "8 - Abandonar o sistema\n")
+    option = input("0 - Registar\n"
+                   "1 - Login\n"
+                   "2 - Listar todas as mensagens por ler\n"
+                   "3 - Listar todos os clientes autorizados\n"
+                   "4 - Enviar uma mensagem para um cliente (autorizado)\n"
+                   "5 - Listar todas as mensagens ja lidas\n"
+                   "6 - Apagar mensagens\n"
+                   "7 - Alterar a password\n"
+                   "8 - Obter privilegios do operador\n"
+                   "9 - Abandonar o sistema\n")
     return str(option)
 
 
-def login():
-    username = input("Username: ")
-    password = input("Password: ")
+def register(conn):
+    username = raw_input("Username: ")
+    password = getpass.getpass()
     user = [username, password]
     request = json.dumps(user)
-    return [request, user]
+    conn.send(request.encode("utf-8"))
+    print "Register successfull. Welcome", username, "!"
+    return user
+
+
+def login(conn):
+    username = raw_input("Username: ")
+    password = getpass.getpass()
+    user = [username, password]
+    request = json.dumps(user)
+    conn.send(request.encode("utf-8"))
+    check_user = conn.recv(1024).decode("utf-8")
+    if check_user == "1":
+        print "Welcome", user[0], "!"
+        return user
+    else:
+        print "Username or password incorrect"
 
 
 def list_messages(conn, user, read):
@@ -106,8 +118,8 @@ def list_messages(conn, user, read):
 
 
 def send_message(conn, user):
-    receiver = input("Who do you wish to send your message? ")
-    message_text = input("Please write your message: ")
+    receiver = raw_input("Who do you wish to send your message? ")
+    message_text = raw_input("Please write your message: ")
     message = [user[0], message_text, receiver]
     message = json.dumps(message)
     conn.send(message.encode("utf-8"))
@@ -132,7 +144,7 @@ def delete_message(conn, user):
 
 
 def change_password(conn, user):
-    new_password = input("Please enter new password: ")
+    new_password = getpass.getpass()
     user = [user[0], new_password]
     user = json.dumps(user)
     conn.send(user.encode("utf-8"))

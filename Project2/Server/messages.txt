@@ -1,2 +1,2 @@
-miguel|faz TI|goa|1
-teresa|socorro|miguel|1
+teresa|Ola|goa|1
+goa|Adeus|teresa|0

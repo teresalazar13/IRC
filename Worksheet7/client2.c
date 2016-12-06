@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
   if((recv_len = recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *) &si_minha, &slen)) == -1)
     erro("Erro no recvfrom");
 
-  printf("Mensagem traduzida: %s\n" , buf);
+  printf("Mensagem traduzida: %s\n", buf);
 
 	// Fecha socket e termina programa
 	close(s);
