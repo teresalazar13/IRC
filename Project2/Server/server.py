@@ -52,6 +52,8 @@ def process_client_request(client, address, option):
         delete_message(client, address)
     elif option == "7":
         change_password(client, address)
+    elif option == "8":
+        process_superuser(client, address)
 
 
 def register(client, address):
@@ -85,6 +87,21 @@ def check_user(client, address):
             return
     f.close()
     client.send("0".encode("utf-8"))
+
+
+def check_superuser(user):
+    f = open("superuser.txt", "r")
+    text = f.read()
+    text = text.strip("\n")
+    text = text.split(",")
+    password = hashlib.sha1()
+    password.update(user[1])
+    password = password.digest()
+    f.close()
+    if user[0] == text[0] and password == text[1]:
+        return True
+    else:
+        return False
 
 
 def list_messages_client(client, address, read):
@@ -224,20 +241,24 @@ def change_password(client, address):
     f.close()
 
 
-def main(argv):
-    """teresa_pass = hashlib.sha1()
-    teresa_pass.update("salazar")
-    compare = teresa_pass;
-    goa_pass = hashlib.sha1()
-    goa_pass.update("amaral")
-    f = open("clients.txt", "w")
-    f.write("teresa,")
-    f.write(teresa_pass.digest())
-    f.write("\ngoa,")
-    f.write(goa_pass.digest())
-    f.write("\n")
-    f.close()"""
+def process_superuser(client, address):
+    superuser = client.recv(1024)
+    superuser = json.loads(superuser)
+    if check_superuser(superuser):
+        print "Client entered superuser mode"
+        client.send("1".encode("utf-8"))
+    else:
+        client.send("0".encode("utf-8"))
+        return
+    while True:
+        request = client.recv(1024)
+        option = request.decode("utf-8")
+        if option == "3":
+            print "Superuser quit superuser mode"
+            return
 
+
+def main(argv):
     print "Hello World"
     port = ''
     try:

@@ -9,42 +9,39 @@ def client(server_port):
     conn = create_socket(server_port)
     user = []
     while True:
-        try:
-            option = menu()
-            if option == "0":
-                conn.send(option.encode("utf-8"))
-                user = register(conn)
-            elif option == "1":
-                conn.send(option.encode("utf-8"))
-                user = login(conn)
-            elif option == "3":
-                conn.send(option.encode("utf-8"))
-                print "LIST OF AUTHORIZED CLIENTS"
-                print conn.recv(1024).decode("utf-8")
-            elif option == "9":
-                conn.send(option.encode("utf-8"))
-                close_connection(conn)
-                return
-            elif option in ["2", "4", "5", "6", "7", "8"] and (user == [] or user == None):
-                print "Please login first"
-            else:
-                conn.send(option.encode("utf-8"))
-                if option == "2":
-                    list_messages(conn, user, 0)
-                elif option == "4":
-                    send_message(conn, user)
-                elif option == "5":
-                    list_messages(conn, user, 1)
-                elif option == "6":
-                    delete_message(conn, user)
-                elif option == "7":
-                    change_password(conn, user)
-                elif option == "8":
-                    print "oi"
-                else:
-                    print "Invalid option"
-        except KeyboardInterrupt:
+        option = menu()
+        if option == "0":
+            conn.send(option.encode("utf-8"))
+            user = register(conn)
+        elif option == "1":
+            conn.send(option.encode("utf-8"))
+            user = login(conn)
+        elif option == "3":
+            conn.send(option.encode("utf-8"))
+            print "LIST OF AUTHORIZED CLIENTS"
+            print conn.recv(1024).decode("utf-8")
+        elif option == "9":
+            conn.send(option.encode("utf-8"))
             close_connection(conn)
+            return
+        elif option in ["2", "4", "5", "6", "7", "8"] and (user == [] or user == None):
+            print "Please login first"
+        else:
+            conn.send(option.encode("utf-8"))
+            if option == "2":
+                list_messages(conn, user, 0)
+            elif option == "4":
+                send_message(conn, user)
+            elif option == "5":
+                list_messages(conn, user, 1)
+            elif option == "6":
+                delete_message(conn, user)
+            elif option == "7":
+                change_password(conn, user)
+            elif option == "8":
+                enter_superuser_mode(conn, user)
+            else:
+                print "Invalid option"
 
 
 def create_socket(port):
@@ -64,16 +61,23 @@ def create_socket(port):
 
 
 def menu():
-    option = input("0 - Registar\n"
+    option = input("0 - Register\n"
                    "1 - Login\n"
-                   "2 - Listar todas as mensagens por ler\n"
-                   "3 - Listar todos os clientes autorizados\n"
-                   "4 - Enviar uma mensagem para um cliente (autorizado)\n"
-                   "5 - Listar todas as mensagens ja lidas\n"
-                   "6 - Apagar mensagens\n"
-                   "7 - Alterar a password\n"
-                   "8 - Obter privilegios do operador\n"
-                   "9 - Abandonar o sistema\n")
+                   "2 - List unread messages\n"
+                   "3 - List authorized clients\n"
+                   "4 - Send a message to a client\n"
+                   "5 - List read messages\n"
+                   "6 - Delete a message\n"
+                   "7 - Change password\n"
+                   "8 - Get operator privileges\n"
+                   "9 - Quit\n")
+    return str(option)
+
+
+def menu_superuser():
+    option = input("1 - Remove a client from database\n"
+                   "2 - Remove a message\n"
+                   "3 - Quit superuser mode\n")
     return str(option)
 
 
@@ -150,6 +154,23 @@ def change_password(conn, user):
     user = json.dumps(user)
     conn.send(user.encode("utf-8"))
     print "Password was changed successfully"
+
+
+def enter_superuser_mode(conn, user):
+    user = json.dumps(user)
+    conn.send(user.encode("utf-8"))
+    client_is_superuser = conn.recv(1024).decode("utf-8")
+    if client_is_superuser == "1":
+        print "You are now in superuser mode"
+    else:
+        print "You are not a superuser"
+        return
+    while True:
+        option = menu_superuser()
+        conn.send(option.encode("utf-8"))
+        if option == "3":
+            print "Quitting superuser mode"
+            return
 
 
 def close_connection(conn):
