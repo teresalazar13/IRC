@@ -114,11 +114,11 @@ def list_messages_client(client, address, read):
         line = line.strip("\n")
         separated_info = line.split('|')
         if read == 0 and separated_info[2] == username and separated_info[3] == "0":
-            messages += separated_info[0] + " send you:\n" + separated_info[1] + "\n"
+            messages += separated_info[0] + " sent you:\n" + separated_info[1] + "\n"
         if read == 1 and separated_info[2] == username and separated_info[3] == "1":
-            messages += separated_info[0] + " send you:\n" + separated_info[1] + "\n"
+            messages += separated_info[0] + " sent you:\n" + separated_info[1] + "\n"
         if read == 2 and separated_info[2] == username:
-            messages += str(counter) + "-" + separated_info[0] + " send you:\n" + separated_info[1] + "\n"
+            messages += str(counter) + "-" + separated_info[0] + " sent you:\n" + separated_info[1] + "\n"
         counter += 1
     if messages != "":
         client.send(messages.encode("utf-8"))
@@ -257,7 +257,9 @@ def process_superuser(client, address):
             request = client.recv(1024)
             client_to_remove = request.decode("utf-8")
             delete_client(client_to_remove)
-        if option == "3":
+        elif option == "2":
+            superuser_deletes_message(client, address)
+        elif option == "3":
             print "Superuser quit superuser mode"
             return
 
@@ -275,6 +277,39 @@ def delete_client(client_to_remove):
     f = open("clients.txt", "w")
     f.write(text)
     f.close()
+
+
+def superuser_deletes_message(client, address):
+    check = 0;
+    messages = ""
+    f = open("messages.txt", "r")
+    counter = 0
+    for line in f:
+        counter += 1
+        line = line.strip("\n")
+        separated_info = line.split('|')
+        messages += str(counter) + "-" + separated_info[0] + " sent:\n" + separated_info[1] + "\n"
+    f.close()
+    client.send(messages.encode("utf-8"))
+    request = client.recv(1024)
+    option = request.decode("utf-8")
+    lines = ""
+    f = open("messages.txt", "r")
+    counter = 0
+    for line in f:
+        counter += 1
+        if str(counter) != option:
+            lines += line
+        else:
+            check = 1
+    f.close()
+    f = open("messages.txt", "w")
+    f.write(lines)
+    f.close()
+    if check:
+        client.send("1".encode("utf-8"))
+    else:
+        client.send("0".encode("utf-8"))
 
 
 def main(argv):

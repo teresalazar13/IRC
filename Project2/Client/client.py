@@ -61,7 +61,7 @@ def create_socket(port):
 
 
 def menu():
-    option = input("0 - Register\n"
+    option = raw_input("0 - Register\n"
                    "1 - Login\n"
                    "2 - List unread messages\n"
                    "3 - List authorized clients\n"
@@ -75,7 +75,7 @@ def menu():
 
 
 def menu_superuser():
-    option = input("1 - Remove a client from database\n"
+    option = raw_input("1 - Remove a client from database\n"
                    "2 - Remove a message\n"
                    "3 - Quit superuser mode\n")
     return str(option)
@@ -137,7 +137,7 @@ def send_message(conn, user):
 def delete_message(conn, user):
     if list_messages(conn, user, 2) == False or user == []:
         return
-    message_number = input("Which message do you want do delete? Please select a number: ")
+    message_number = raw_input("Which message do you want do delete? Please select a number: ")
     conn.send(str(message_number).encode("utf-8"))
     check = conn.recv(1024).decode("utf-8")
     if check == "1":
@@ -171,9 +171,25 @@ def enter_superuser_mode(conn, user):
         if option == "1":
             client_to_remove = raw_input("Which client do you want to remove: ")
             conn.send(client_to_remove.encode("utf-8"))
+        elif option == "2":
+            superuser_deletes_message(conn, user)
         elif option == "3":
             print "Quitting superuser mode"
             return
+        else:
+            print "Invalid option"
+
+
+def superuser_deletes_message(conn, user):
+    all_messages = conn.recv(1024).decode("utf-8")
+    print all_messages
+    message = raw_input("Which message do you want to delete: ")
+    conn.send(str(message).encode("utf-8"))
+    check = conn.recv(1024).decode("utf-8")
+    if check == "1":
+        print "Message was deleted successfully"
+    else:
+        print "Could not delete the message"
 
 
 def close_connection(conn):
