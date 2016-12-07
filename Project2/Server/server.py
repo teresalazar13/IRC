@@ -24,20 +24,28 @@ def server(port):
 
 
 def process_client(client, address):
+    user = []
     while True:
+        check_notifications(client, address, user)
         option = client.recv(1024).decode("utf-8")
         if option == "9":
             print "Client with address", address, "closed connection"
             client.close()
             return
-        process_client_request(client, address, option)
+        process_client_request(client, address, option, user)
 
 
-def process_client_request(client, address, option):
+def process_client_request(client, address, option, user):
+    print "User before process"
+    print user
     if option == "0":
-        register(client, address)
+        test = register(client, address)
+        user.append(test[0])
+        user.append(test[1])
     elif option == "1":
-        check_user(client, address)
+        test = check_user(client, address)
+        user.append(test[0])
+        user.append(test[1])
     elif option == "2":
         username = list_messages_client(client, address, 0)
         mark_messages_read(client, address, username)
@@ -66,6 +74,7 @@ def register(client, address):
     f.write(user_pass.digest())
     f.write("\n")
     f.close()
+    return user
 
 
 def check_user(client, address):
@@ -81,7 +90,7 @@ def check_user(client, address):
         if separated_info[0] == user[0] and separated_info[1] == password:
             f.close()
             client.send("1".encode("utf-8"))
-            return
+            return user
     f.close()
     client.send("0".encode("utf-8"))
 
@@ -99,6 +108,27 @@ def check_superuser(user):
         return True
     else:
         return False
+
+
+def check_notifications(client, address, user):
+    if user != [] and user != None:
+        notifications = 0;
+        lines = ""
+        f = open("notify.txt", "r")
+        for line in f:
+            line = line.strip("\n")
+            if line == user[0]:
+                notifications += 1
+            else:
+                lines += line + "\n"
+        f.close()
+        f = open("notify.txt", "w")
+        f.write(lines)
+        f.close()
+        client.send(str(notifications).encode("utf-8"))
+        print str(notifications)
+    else:
+        client.send("0".encode("utf-8"))
 
 
 def list_messages_client(client, address, read):
@@ -163,6 +193,10 @@ def send_message(client, address):
     else:
         client.send("0".encode("utf-8"))
         return
+    f = open("notify.txt", "a")
+    f.write(message[2])
+    f.write("\n")
+    f.close()
 
 
 def check_username(username):

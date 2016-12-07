@@ -9,7 +9,7 @@ def client(server_port):
     conn = create_socket(server_port)
     user = []
     while True:
-        option = menu()
+        option = menu(conn)
         if option == "0":
             conn.send(option.encode("utf-8"))
             user = register(conn)
@@ -60,7 +60,12 @@ def create_socket(port):
     return client_socket
 
 
-def menu():
+def menu(conn):
+    notifications = conn.recv(1024).decode("utf-8")
+    if notifications != "0":
+        print "You have a new message"
+    else:
+        print "No new notifications"
     option = raw_input("0 - Register\n"
                    "1 - Login\n"
                    "2 - List unread messages\n"

@@ -1,3 +1,5 @@
 teresa|Ola|goa|1
-goa|Adeus|teresa|0
-joao|bem vindo|goa|0
+goa|Adeus|teresa|1
+teresa|fwefef|goa|1
+goa|dfwfwrf|teresa|1
+teresa|wefwrfrf|goa|0
