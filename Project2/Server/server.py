@@ -36,8 +36,6 @@ def process_client(client, address):
 
 
 def process_client_request(client, address, option, user):
-    print "User before process"
-    print user
     if option == "0":
         test = register(client, address)
         user.append(test[0])
@@ -126,7 +124,6 @@ def check_notifications(client, address, user):
         f.write(lines)
         f.close()
         client.send(str(notifications).encode("utf-8"))
-        print str(notifications)
     else:
         client.send("0".encode("utf-8"))
 
