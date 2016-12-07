@@ -25,8 +25,7 @@ def server(port):
 
 def process_client(client, address):
     while True:
-        request = client.recv(1024)
-        option = request.decode("utf-8")
+        option = client.recv(1024).decode("utf-8")
         if option == "9":
             print "Client with address", address, "closed connection"
             client.close()
@@ -57,8 +56,7 @@ def process_client_request(client, address, option):
 
 
 def register(client, address):
-    request = client.recv(1024)
-    user = request.decode("utf-8")
+    user = client.recv(1024).decode("utf-8")
     user = json.loads(user)
     user_pass = hashlib.sha1()
     user_pass.update(user[1])
@@ -71,8 +69,7 @@ def register(client, address):
 
 
 def check_user(client, address):
-    request = client.recv(1024)
-    user = request.decode("utf-8")
+    user = client.recv(1024).decode("utf-8")
     user = json.loads(user)
     f = open("clients.txt", "r")
     for line in f:
@@ -105,10 +102,9 @@ def check_superuser(user):
 
 
 def list_messages_client(client, address, read):
-    request = client.recv(1024)
     counter = 1
     messages = ""
-    username = request.decode("utf-8")
+    username = client.recv(1024).decode("utf-8")
     f = open("messages.txt", "r")
     for line in f:
         line = line.strip("\n")
@@ -159,8 +155,7 @@ def list_clients():
 
 
 def send_message(client, address):
-    request = client.recv(1024)
-    message = request.decode("utf-8")
+    message = client.recv(1024).decode("utf-8")
     message = json.loads(message)
     if check_username(message[2]):
         client.send("1".encode("utf-8"))
@@ -190,8 +185,7 @@ def write_message(message):
 
 def delete_message(client, address):
     username = list_messages_client(client, address, 2)
-    request = client.recv(1024)
-    message = int(request.decode("utf-8"))
+    message = int(client.recv(1024).decode("utf-8"))
     f = open("messages.txt", "r")
     counter = 0
     counter_array = []
@@ -218,14 +212,12 @@ def delete_message(client, address):
 
 
 def change_password(client, address):
-    request = client.recv(1024)
-    user = request.decode("utf-8")
+    user = client.recv(1024).decode("utf-8")
     user = json.loads(user)
     username = user[0]
     new_password = hashlib.sha1()
     new_password.update(user[1])
     new_password = new_password.digest()
-    print new_password
     lines = ""
     f = open("clients.txt", "r")
     for line in f:
@@ -242,7 +234,7 @@ def change_password(client, address):
 
 
 def process_superuser(client, address):
-    superuser = client.recv(1024)
+    superuser = client.recv(1024).decode("utf-8")
     superuser = json.loads(superuser)
     if check_superuser(superuser):
         print "Client entered superuser mode"
@@ -267,11 +259,9 @@ def process_superuser(client, address):
         if request == "0":
             return
     while True:
-        request = client.recv(1024)
-        option = request.decode("utf-8")
+        option = client.recv(1024).decode("utf-8")
         if option == "1":
-            request = client.recv(1024)
-            client_to_remove = request.decode("utf-8")
+            client_to_remove = client.recv(1024).decode("utf-8")
             delete_client(client_to_remove)
         elif option == "2":
             superuser_deletes_message(client, address)
@@ -307,8 +297,7 @@ def superuser_deletes_message(client, address):
         messages += str(counter) + "-" + separated_info[0] + " sent:\n" + separated_info[1] + "\n"
     f.close()
     client.send(messages.encode("utf-8"))
-    request = client.recv(1024)
-    option = request.decode("utf-8")
+    option = client.recv(1024).decode("utf-8")
     lines = ""
     f = open("messages.txt", "r")
     counter = 0

@@ -1,2 +1,3 @@
 teresa|Ola|goa|1
 goa|Adeus|teresa|0
+joao|bem vindo|goa|0

@@ -82,7 +82,9 @@ def menu_superuser():
 
 
 def register(conn):
-    username = raw_input("Username: ")
+    username = ""
+    while 0 == len(username) or len(username) >= 9:
+        username = raw_input("Username (max length 9): ")
     password = getpass.getpass()
     user = [username, password]
     request = json.dumps(user)
@@ -106,7 +108,6 @@ def login(conn):
 
 
 def list_messages(conn, user, read):
-    print user[0]
     conn.send(user[0].encode("utf-8"))
     messages = conn.recv(1024).decode("utf-8")
     if messages != "0":
