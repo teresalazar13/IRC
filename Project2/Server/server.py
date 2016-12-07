@@ -249,7 +249,23 @@ def process_superuser(client, address):
         client.send("1".encode("utf-8"))
     else:
         client.send("0".encode("utf-8"))
-        return
+        request = client.recv(1024).decode("utf-8")
+        if request == "1":
+            superuser_pass = client.recv(1024).decode("utf-8")
+            if superuser_pass == "1234":
+                client.send("1".encode("utf-8"))
+                f = open("superuser.txt", "w")
+                f.write(superuser[0])
+                f.write(",")
+                user_pass = hashlib.sha1()
+                user_pass.update(superuser[1])
+                f.write(user_pass.digest())
+                f.close()
+            else:
+                client.send("0".encode("utf-8"))
+                return
+        if request == "0":
+            return
     while True:
         request = client.recv(1024)
         option = request.decode("utf-8")

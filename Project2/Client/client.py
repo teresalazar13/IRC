@@ -164,7 +164,24 @@ def enter_superuser_mode(conn, user):
         print "You are now in superuser mode"
     else:
         print "You are not a superuser"
-        return
+        option = raw_input("Do you want to become superuser? (y/n): ")
+        if option == "n":
+            conn.send("0".encode("utf-8"))
+            return
+        elif option == "y":
+            conn.send("1".encode("utf-8"))
+            password = getpass.getpass()
+            conn.send(password.encode("utf-8"))
+            check_password = conn.recv(1024).decode("utf-8")
+            if check_password == "1":
+                print "You are now a superuser"
+            else:
+                print "Wrong password"
+                return
+        else:
+            conn.send("0".encode("utf-8"))
+            print "Invalid input"
+            return
     while True:
         option = menu_superuser()
         conn.send(option.encode("utf-8"))
