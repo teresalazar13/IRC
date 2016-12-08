@@ -4,7 +4,7 @@ import json
 import thread
 import getopt
 import hashlib
-
+import signal
 
 def create_socket(port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -14,10 +14,14 @@ def create_socket(port):
     print "Socket creation successfull"
     return s
 
+def ctrl_c_handler(signum, frame):
+    print 'Server terminating'
+    sys.exit()
 
 def server(port):
     server_socket = create_socket(port)
     print "The server is ready to receive"
+    signal.signal(signal.SIGINT, ctrl_c_handler)
     while True:
         client, address = server_socket.accept()
         thread.start_new_thread(process_client, (client, address))
@@ -349,24 +353,32 @@ def superuser_deletes_message(client, address):
 
 
 def main(argv):
-    print "Hello World"
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    print "Welcome to our simple email server"
     port = ''
     try:
-        opts, args = getopt.getopt(argv, "hp:", ["pport="])
+        opts, args = getopt.getopt(argv, "hp:")
     except getopt.GetoptError:
-        print 'server.py -p <port>'
-        sys.exit(2)
+        print 'python server.py -p <port>'
+        sys.exit()
     for opt, arg in opts:
         if opt == '-h':
-            print 'server.py -p <port>'
+            print 'python server.py -p <port>'
             sys.exit()
-        elif opt in ("-p", "--pport"):
+        elif opt == "-p":
+            try:
+                int(arg)
+            except ValueError:
+                print 'python server.py -p <port>'
+                print 'port has to be a number'
+                sys.exit()
+            if int(arg) < 1024:
+                print 'python server.py -p <port>'
+                print 'port has to be bigger than 1023'
+                sys.exit()
             port = arg
-    if port != "":
-        server(int(port))
-    else:
-        print 'ERROR - Usage: server.py -p <port>'
-        return
+            server(int(port))
+            return
 
 
 if __name__ == '__main__':
