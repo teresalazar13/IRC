@@ -6,6 +6,8 @@ import getopt
 import hashlib
 import signal
 
+threads = []
+
 def create_socket(port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host = socket.gethostname()
@@ -16,6 +18,8 @@ def create_socket(port):
 
 def ctrl_c_handler(signum, frame):
     print 'Server terminating'
+    for thread in threads:
+        thread.join
     sys.exit()
 
 def server(port):
@@ -24,7 +28,7 @@ def server(port):
     signal.signal(signal.SIGINT, ctrl_c_handler)
     while True:
         client, address = server_socket.accept()
-        thread.start_new_thread(process_client, (client, address))
+        threads.append( thread.start_new_thread(process_client, (client, address)) ).
 
 
 def process_client(client, address):
