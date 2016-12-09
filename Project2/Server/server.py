@@ -1,104 +1,152 @@
 import socket
 import sys
 import json
-import thread
+from threading import Thread
 import getopt
 import hashlib
 import signal
 
+#Threadpool
 threads = []
+#Thread exiting control variable
+exitThreads = 0
+#Max users that can connect to the server
+max_users = 5
 
+#Create, bind and listen to socket
 def create_socket(port):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host = socket.gethostname()
-    s.bind((host, port))
-    s.listen(5)
-    print "Socket creation successfull"
-    return s
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	host = socket.gethostname()
+	s.bind((host, port))
+	s.listen(max_users)
+	print "Socket creation successfull"
+	return s
 
+
+#Ctrl c handler
 def ctrl_c_handler(signum, frame):
-    print 'Server terminating'
-    for thread in threads:
-        thread.join
-    sys.exit()
+	shutdown_server()
 
+#Shutdown server
+def shutdown_server():
+	join_threads()
+	sys.exit('Server terminating')
+
+
+#Join threads
+def join_threads():
+	exitThreads=1
+	for thread in threads:
+		thread.join
+
+#Main setup and runtime of the server
 def server(port):
-    server_socket = create_socket(port)
-    print "The server is ready to receive"
-    signal.signal(signal.SIGINT, ctrl_c_handler)
-    while True:
-        client, address = server_socket.accept()
-        threads.append( thread.start_new_thread(process_client, (client, address)) ).
+	server_socket = create_socket(port)
+	print "The server is ready to receive"
+	signal.signal(signal.SIGINT, ctrl_c_handler)
+	while True:
+		client, address = server_socket.accept()
+		t = Thread(target=process_client,  args=(client, address))
+		t.daemon = True;
+		t.start()
+		threads.append(t)
 
 
+#Thread to handle client requests
 def process_client(client, address):
-    user = []
-    while True:
-        check_notifications(client, address, user)
-        option = client.recv(1024).decode("utf-8")
-        if option == "9":
-            print "Client with address", address, "closed connection"
-            client.close()
-            return
-        process_client_request(client, address, option, user)
+	user = []
+	while True:
+		check_notifications(client, address, user)
+		option = client.recv(1024).decode("utf-8")
+		if option == "9":
+			print "Client with address", address, "closed connection"
+			client.close()
+			return
+		process_client_request(client, address, option, user)
+		if exitThreads == 1:
+			return
 
 
+#Handle requested action from the client
 def process_client_request(client, address, option, user):
-    if option == "0":
-        test = register(client, address)
-        user.append(test[0])
-        user.append(test[1])
-    elif option == "1":
-        test = check_user(client, address)
-        user.append(test[0])
-        user.append(test[1])
-    elif option == "2":
-        username = list_messages_client(client, address, 0)
-        mark_messages_read(client, address, username)
-    elif option == "3":
-        client.send(list_clients().encode("utf-8"))
-    elif option == "4":
-        send_message(client, address)
-    elif option == "5":
-        username = list_messages_client(client, address, 1)
-    elif option == "6":
-        delete_message(client, address)
-    elif option == "7":
-        change_password(client, address)
-    elif option == "8":
-        process_superuser(client, address)
+	#TESTED
+	if option == "0":
+		test = register(client, address)
+		if test == -1:
+			return
+		else:
+			user.append(test[0])
+			user.append(test[1])
+	#TESTED
+	elif option == "1":
+		response = check_user(client, address)
+		if response != -1:
+			user.append(response[0])
+			user.append(response[1])
+	#TEST
+	elif option == "2":
+		username = list_messages_client(client, address, 0)
+		mark_messages_read(client, address, username)
+	elif option == "3":
+		client.send(list_clients().encode("utf-8"))
+	elif option == "4":
+		send_message(client, address)
+	elif option == "5":
+		username = list_messages_client(client, address, 1)
+	elif option == "6":
+		delete_message(client, address)
+	elif option == "7":
+		change_password(client, address)
+	elif option == "8":
+		process_superuser(client, address)
 
-
+#TESTED
 def register(client, address):
-    user = client.recv(1024).decode("utf-8")
-    user = json.loads(user)
-    user_pass = hashlib.sha1()
-    user_pass.update(user[1])
-    f = open("clients.txt", "a")
-    f.write(user[0])
-    f.write(",")
-    f.write(user_pass.digest())
-    f.write("\n")
-    f.close()
-    return user
+	user = client.recv(1024).decode("utf-8")
+	user = json.loads(user)
 
+	registered_users = []
+	f = open("clients.txt", "r")
+	for line in f:
+		registered_users.append(line.split(", ")[0])
+	f.close()
 
+	if user[0] in registered_users:
+		client.send("Already Register".encode("utf-8"))
+		return -1
+	else:
+		f = open("clients.txt", "a")
+		f.write(user[0])
+		f.write(", ")
+		f.write(encode(user[1]))
+		f.write("\n")
+		f.close()
+		client.send("Registered successfully".encode("utf-8"))
+		return user
+
+def encode(str):
+	return hashlib.sha1(str).hexdigest()
+
+#TESTED
 def check_user(client, address):
-    user = client.recv(1024).decode("utf-8")
-    user = json.loads(user)
-    f = open("clients.txt", "r")
-    for line in f:
-        line = line.strip("\n")
-        separated_info = line.split(',')
-        password = hashlib.sha1()
-        password.update(user[1])
-        password = password.digest()
-        if separated_info[0] == user[0] and separated_info[1] == password:
-            f.close()
-            client.send("1".encode("utf-8"))
-            return user
-    f.close()
-    client.send("0".encode("utf-8"))
+	user = client.recv(1024).decode("utf-8")
+	user = json.loads(user)
+	f = open("clients.txt", "r")
+	for line in f:
+		line = line.strip("\n")
+		separated_info = line.split(', ')
+		password = encode(user[1])
+		if separated_info[0] == user[0] and separated_info[1] == password:
+			f.close()
+			client.send("1".encode("utf-8"))
+			return user
+		if separated_info[0] == user[0] and separated_info[1] != password:
+			f.close()
+			client.send("0".encode("utf-8"))
+			return -1
+	f.close()
+	client.send("2".encode("utf-8"))
+	return -1
 
 
 def check_superuser(user):
@@ -106,9 +154,7 @@ def check_superuser(user):
     text = f.read()
     text = text.strip("\n")
     text = text.split(",")
-    password = hashlib.sha1()
-    password.update(user[1])
-    password = password.digest()
+    password = encode(user[1])
     f.close()
     if user[0] == text[0] and password == text[1]:
         return True
@@ -254,9 +300,7 @@ def change_password(client, address):
     user = client.recv(1024).decode("utf-8")
     user = json.loads(user)
     username = user[0]
-    new_password = hashlib.sha1()
-    new_password.update(user[1])
-    new_password = new_password.digest()
+    new_password = encode(user[1])
     lines = ""
     f = open("clients.txt", "r")
     for line in f:
@@ -288,9 +332,7 @@ def process_superuser(client, address):
                 f = open("superuser.txt", "w")
                 f.write(superuser[0])
                 f.write(",")
-                user_pass = hashlib.sha1()
-                user_pass.update(superuser[1])
-                f.write(user_pass.digest())
+                f.write(encode(superuser[1]))
                 f.close()
             else:
                 client.send("0".encode("utf-8"))
@@ -357,33 +399,27 @@ def superuser_deletes_message(client, address):
 
 
 def main(argv):
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
-    print "Welcome to our simple email server"
-    port = ''
-    try:
-        opts, args = getopt.getopt(argv, "hp:")
-    except getopt.GetoptError:
-        print 'python server.py -p <port>'
-        sys.exit()
-    for opt, arg in opts:
-        if opt == '-h':
-            print 'python server.py -p <port>'
-            sys.exit()
-        elif opt == "-p":
-            try:
-                int(arg)
-            except ValueError:
-                print 'python server.py -p <port>'
-                print 'port has to be a number'
-                sys.exit()
-            if int(arg) < 1024:
-                print 'python server.py -p <port>'
-                print 'port has to be bigger than 1023'
-                sys.exit()
-            port = arg
-            server(int(port))
-            return
+	signal.signal(signal.SIGINT, signal.SIG_IGN)
+	print "Welcome to our simple email server"
+	port = ''
+	try:
+		opts, args = getopt.getopt(argv, "hp:")
+	except getopt.GetoptError:
+		sys.exit('python server.py -p <port>')
+	for opt, arg in opts:
+		if opt == '-h':
+			sys.exit('python server.py -p <port>')
+		elif opt == "-p":
+			try:
+				int(arg)
+			except ValueError:
+				sys.exit('python server.py -p <port>\nport has to be a number')
+			if int(arg) < 1024:
+				sys.exit('python server.py -p <port>\nport has to be bigger than 1023')
+			port = arg
+			server(int(port))
+			return
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+	main(sys.argv[1:])
