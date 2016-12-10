@@ -160,6 +160,8 @@ def login(conn):
 	elif check_user == "0":
 		print "Username or password incorrect"
 		return -1
+	elif check_user == "1":
+		print "Wrong password"
 	else:
 		print "User does not exist. Please register"
 
