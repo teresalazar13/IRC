@@ -6,14 +6,14 @@ import getopt
 import hashlib
 import signal
 
-#Threadpool
+# Threadpool
 threads = []
-#Thread exiting control variable
+# Thread exiting control variable
 exitThreads = 0
-#Max users that can connect to the server
+# Max users that can connect to the server
 max_users = 5
 
-#Create, bind and listen to socket
+# Create, bind and listen to socket
 def create_socket(port):
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	host = socket.gethostname()
@@ -23,23 +23,23 @@ def create_socket(port):
 	return s
 
 
-#Ctrl c handler
+# Ctrl c handler
 def ctrl_c_handler(signum, frame):
 	shutdown_server()
 
-#Shutdown server
+# Shutdown server
 def shutdown_server():
 	join_threads()
 	sys.exit('Server terminating')
 
 
-#Join threads
+# Join threads
 def join_threads():
 	exitThreads=1
 	for thread in threads:
 		thread.join
 
-#Main setup and runtime of the server
+# Main setup and runtime of the server
 def server(port):
 	server_socket = create_socket(port)
 	print "The server is ready to receive"
@@ -52,7 +52,7 @@ def server(port):
 		threads.append(t)
 
 
-#Thread to handle client requests
+# Thread to handle client requests
 def process_client(client, address):
 	user = []
 	while True:
@@ -70,7 +70,7 @@ def process_client(client, address):
 			return
 
 
-#Handle requested action from the client
+# Handle requested action from the client
 def process_client_request(client, address, option, user):
 	if option == "0":
 		test = register(client, address)
@@ -101,7 +101,7 @@ def process_client_request(client, address, option, user):
 	elif option == "8":
 		process_superuser(client, address)
 
-#Register client in the server
+# Register client in the server
 def register(client, address):
 	user = client.recv(1024).decode("utf-8")
 	user = json.loads(user)
@@ -125,11 +125,11 @@ def register(client, address):
 		client.send("Registered successfully".encode("utf-8"))
 		return user
 
-#Encodes string
+# Encodes string
 def encode(str):
 	return hashlib.sha1(str).hexdigest()
 
-#Check if the user exist
+# Check if the user exist
 def check_user(client, address):
 	user = client.recv(1024).decode("utf-8")
 	user = json.loads(user)
@@ -151,7 +151,7 @@ def check_user(client, address):
 	return -1
 
 
-#Check if user is superuser
+# Check if user is superuser
 def check_superuser(user):
 	f = open("superuser.txt", "r")
 	text = f.read()
@@ -165,7 +165,7 @@ def check_superuser(user):
 		return False
 
 
-#Get notifications of logged in client
+# Get notifications of logged in client
 def check_notifications(client, address, user):
 	notifications = 0;
 	lines = ""
@@ -183,7 +183,7 @@ def check_notifications(client, address, user):
 	client.send(str(notifications).encode("utf-8"))
 
 
-#Return messages for the client, read and unread depending on the read variable
+# Return messages for the client, read and unread depending on the read variable
 def list_messages_client(client, address, read):
 	messages_list = []
 	username = client.recv(1024).decode("utf-8")
@@ -208,7 +208,7 @@ def list_messages_client(client, address, read):
 	return username
 
 
-#Mark message as read
+# Mark message as read
 def mark_messages_read(client, address, username):
 	f = open("messages.txt", "r")
 	lines = ""
@@ -228,7 +228,7 @@ def mark_messages_read(client, address, username):
 	f.close()
 
 
-#List clients registered in the server
+# List clients registered in the server
 def list_clients():
 	registered_users = []
 	f = open("clients.aut", "r")
@@ -242,7 +242,7 @@ def list_clients():
 	return registered_users
 
 
-#Send message to a user
+# Send message to a user
 def send_message(client, address):
 	message = client.recv(1024).decode("utf-8")
 	message = json.loads(message)
@@ -258,7 +258,7 @@ def send_message(client, address):
 	f.close()
 
 
-#Check if username exists
+# Check if username exists
 def check_username(username):
 	f = open("clients.aut", "r")
 	for line in f:
@@ -271,14 +271,14 @@ def check_username(username):
 	return False
 
 
-#Write message in the messages file
+# Write message in the messages file
 def write_message(message):
 	f = open("messages.txt", "a")
 	f.write(message[0] + "|" + message[1] + "|" + message[2] + "|" + "0" +"\n")
 	f.close()
 
 
-#Deletes message from server
+# Deletes message from server
 def delete_message(client, address):
 	username = list_messages_client(client, address, 2)
 	message_number = int(client.recv(1024).decode("utf-8"))
@@ -307,7 +307,7 @@ def delete_message(client, address):
 		client.send("1".encode("utf-8"))
 
 
-#Change password of user
+# Change password of user
 def change_password(client, address):
 	user = client.recv(1024).decode("utf-8")
 	user = json.loads(user)
@@ -329,12 +329,11 @@ def change_password(client, address):
 	f.close()
 
 
-#Get superuser privileges
+# Get superuser privileges
 def process_superuser(client, address):
 	superuser = client.recv(1024).decode("utf-8")
 	superuser = json.loads(superuser)
-	if check_superuser(superuser):
-		print "Your are already a super user"
+	if c(superuser):
 		client.send("1".encode("utf-8"))
 	else:
 		client.send("0".encode("utf-8"))
@@ -346,8 +345,6 @@ def process_superuser(client, address):
 			superuser_pass = superuser_pass.split(", ")
 			superuser_pass = superuser_pass[1].strip("\n")
 			password = encode(password)
-			print password
-			print superuser_pass
 			if password == superuser_pass:
 				client.send("1".encode("utf-8"))
 				f = open("superuser.txt", "w")
@@ -372,7 +369,7 @@ def process_superuser(client, address):
 			return
 
 
-#Delete client
+# Delete client
 def delete_client(client_to_remove):
 	text = ""
 	f = open("clients.aut", "r")
@@ -388,7 +385,7 @@ def delete_client(client_to_remove):
 	f.close()
 
 
-#Delete messages as superuser
+# Delete messages as superuser
 def superuser_deletes_message(client, address):
 	check = 0;
 	messages = ""
@@ -424,7 +421,7 @@ def superuser_deletes_message(client, address):
 		client.send("0".encode("utf-8"))
 
 
-#Main function
+# Main function
 def main(argv):
 	signal.signal(signal.SIGINT, signal.SIG_IGN)
 	print "Welcome to our simple email server"

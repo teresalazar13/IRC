@@ -1,1 +1,3 @@
-goa|ola|teresa|1
+teresa|oi|goa|1
+p|ola 1|1|1
+p|hey|teresa|1

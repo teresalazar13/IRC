@@ -12,56 +12,56 @@ def client(server_port):
 	print 'Client connected'
 	signal.signal(signal.SIGINT, ctrl_c_handler)
 
-	### USED FOR shutdown_client
+	# USED FOR shutdown_client
 	conn_to_server.append(conn)
 
 	user = []
 	while True:
 		option = menu(conn, user)
-		#REGISTER
+		# REGISTER
 		if option == '0':
 			conn.send(option.encode("utf-8"))
 			response = register(conn)
 			if response != -1:
 				user = response
-		#LOGIN
+		# LOGIN
 		elif option == '1':
 			conn.send(option.encode('utf-8'))
 			response = login(conn)
 			if response != -1:
 				user = response
-		#LIST AUTHORIZED CLIENTS
+		# LIST AUTHORIZED CLIENTS
 		elif option == '3':
 			conn.send(option.encode("utf-8"))
 			print 'LIST OF AUTHORIZED CLIENTS'
 			response = conn.recv(1024).decode('utf-8')
 			print response
-		#QUIT
+		# QUIT
 		elif option == '9':
 			shutdown_client()
-		#IF NOT LOGGED IN
+		# IF NOT LOGGED IN
 		elif option in ['2', '4', '5', '6', '7', '8'] and (user == [] or user == None):
 			print 'Please login first'
 			conn.send("Not logged in".encode('utf-8'))
-		#IF LOGGED IN
+		# IF LOGGED IN
 		else:
 			conn.send(option.encode('utf-8'))
-			#LIST UNREAD MESSAGES
+			# LIST UNREAD MESSAGES
 			if option == '2':
 				list_messages(conn, user, 0)
-			#SEND MESSAGE TO CLIENT
+			# SEND MESSAGE TO CLIENT
 			elif option == '4':
 				send_message(conn, user)
-			#LIST READ MESSAGES
+			# LIST READ MESSAGES
 			elif option == '5':
 				list_messages(conn, user, 1)
-			#DELETE MESSAGES
+			# DELETE MESSAGES
 			elif option == '6':
 				delete_message(conn, user)
-			#CHANGE PASSWORD
+			# CHANGE PASSWORD
 			elif option == '7':
 				change_password(conn, user)
-			#SUPERUSER
+			# SUPERUSER
 			elif option == '8':
 				enter_superuser_mode(conn, user)
 			else:
@@ -77,8 +77,7 @@ def shutdown_client():
 	sys.exit('Client disconnected')
 
 
-#Create, connect and bind socket
-#TESTED
+# Create, connect and bind socket
 def create_socket(port):
 	try:
 		client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -95,7 +94,7 @@ def create_socket(port):
 	return client_socket
 
 
-#Main menu
+# Main menu
 def menu(conn, user):
 	if user != [] and user != None:
 		notifications = conn.recv(1024).decode("utf-8")
@@ -104,7 +103,7 @@ def menu(conn, user):
 		else:
 			print "No new notifications"
 	else:
-		print "Please log in to get notifications"
+		print "Please login to get notifications"
 
 	option = raw_input("0 - Register\n"
 				   "1 - Login\n"
@@ -120,7 +119,7 @@ def menu(conn, user):
 	return str(option)
 
 
-#Menu for the superuser
+# Menu for the superuser
 def menu_superuser():
 	option = raw_input("1 - Remove a client from database\n"
 					   "2 - Remove a message\n"
@@ -129,7 +128,7 @@ def menu_superuser():
 	return str(option)
 
 
-#Register user in the server if not already logged in
+# Register user in the server if not already logged in
 def register(conn):
 	username = ""
 	while 0 == len(username) or len(username) >= 9:
@@ -147,7 +146,7 @@ def register(conn):
 		return -1
 
 
-#Login user into the server
+# Login user into the server
 def login(conn):
 	username = raw_input("Username: ")
 	password = getpass.getpass()
@@ -162,10 +161,10 @@ def login(conn):
 		print "Username or password incorrect"
 		return -1
 	else:
-		print "User does not exist please register"
+		print "User does not exist. Please register"
 
 
-#Print read messages and unread messages depending on variable read
+# Print read messages and unread messages depending on variable read
 def list_messages(conn, user, read):
 	conn.send(user[0].encode("utf-8"))
 	messages = conn.recv(1024).decode("utf-8")
@@ -182,7 +181,7 @@ def list_messages(conn, user, read):
 			return False
 
 
-#Send email
+# Send email
 def send_message(conn, user):
 	receiver = raw_input("Who do you wish to send your message? ")
 	message_text = raw_input("Please write your message: ")
@@ -195,7 +194,7 @@ def send_message(conn, user):
 		print "Can't send message to", receiver, ". User is not valid."
 
 
-#Delete message from the system
+# Delete message from the system
 def delete_message(conn, user):
 	if list_messages(conn, user, 2) == False or user == []:
 		conn.send("-1".encode("utf-8"))
@@ -217,7 +216,7 @@ def change_password(conn, user):
 	conn.send(user.encode("utf-8"))
 	print "Password was changed successfully"
 
-#Enter superuser mode
+# Enter superuser mode
 def enter_superuser_mode(conn, user):
 	user = json.dumps(user)
 	conn.send(user.encode("utf-8"))
@@ -259,7 +258,7 @@ def enter_superuser_mode(conn, user):
 			print "Invalid option"
 
 
-#Deletes message as superuser
+# Deletes message as superuser
 def superuser_deletes_message(conn, user):
 	all_messages = conn.recv(1024).decode("utf-8")
 	print all_messages
@@ -274,7 +273,7 @@ def superuser_deletes_message(conn, user):
 		print "Could not delete the message"
 
 
-#Main function
+# Main function
 def main(argv):
 	signal.signal(signal.SIGINT, signal.SIG_IGN)
 	port = ''
