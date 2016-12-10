@@ -56,18 +56,22 @@ def server(port):
 def process_client(client, address):
 	user = []
 	while True:
-		check_notifications(client, address, user)
+		if user != [] and user != None:
+			check_notifications(client, address, user)
 		option = client.recv(1024).decode("utf-8")
 		if option == "9":
 			print "Client with address", address, "closed connection"
 			client.close()
 			return
+		if option == "Not logged in":
+			continue
 		process_client_request(client, address, option, user)
 		if exitThreads == 1:
 			return
 
 
 #Handle requested action from the client
+#TEST
 def process_client_request(client, address, option, user):
 	#TESTED
 	if option == "0":
@@ -83,14 +87,18 @@ def process_client_request(client, address, option, user):
 		if response != -1:
 			user.append(response[0])
 			user.append(response[1])
-	#TEST
+	#TESTED
 	elif option == "2":
 		username = list_messages_client(client, address, 0)
 		mark_messages_read(client, address, username)
+	#TESTED
 	elif option == "3":
-		client.send(list_clients().encode("utf-8"))
+		response = list_clients()
+		client.send(response.encode("utf-8"))
+	#TESTED
 	elif option == "4":
 		send_message(client, address)
+	#TEST
 	elif option == "5":
 		username = list_messages_client(client, address, 1)
 	elif option == "6":
@@ -100,6 +108,7 @@ def process_client_request(client, address, option, user):
 	elif option == "8":
 		process_superuser(client, address)
 
+#Register client in the server
 #TESTED
 def register(client, address):
 	user = client.recv(1024).decode("utf-8")
@@ -124,9 +133,12 @@ def register(client, address):
 		client.send("Registered successfully".encode("utf-8"))
 		return user
 
+#Encodes string
+#TESTED
 def encode(str):
 	return hashlib.sha1(str).hexdigest()
 
+#Check if the user exist
 #TESTED
 def check_user(client, address):
 	user = client.recv(1024).decode("utf-8")
@@ -161,27 +173,27 @@ def check_superuser(user):
     else:
         return False
 
-
+#Get notifications of logged in client
+#TESTED
 def check_notifications(client, address, user):
-    if user != [] and user != None:
-        notifications = 0;
-        lines = ""
-        f = open("notify.txt", "r")
-        for line in f:
-            line = line.strip("\n")
-            if line == user[0]:
-                notifications += 1
-            else:
-                lines += line + "\n"
-        f.close()
-        f = open("notify.txt", "w")
-        f.write(lines)
-        f.close()
-        client.send(str(notifications).encode("utf-8"))
-    else:
-        client.send("0".encode("utf-8"))
+	notifications = 0;
+	lines = ""
+	f = open("notify.txt", "r")
+	for line in f:
+		line = line.strip("\n")
+		if line == user[0]:
+			notifications += 1
+		else:
+			lines += line + "\n"
+	f.close()
+	f = open("notify.txt", "w")
+	f.write(lines)
+	f.close()
+	client.send(str(notifications).encode("utf-8"))
 
 
+#Return messages for the client, read and unread depending on the read variable
+#TESTED
 def list_messages_client(client, address, read):
     counter = 1
     messages = ""
@@ -205,6 +217,8 @@ def list_messages_client(client, address, read):
     f.close()
 
 
+#Mark message as read
+#TESTED
 def mark_messages_read(client, address, username):
     f = open("messages.txt", "r")
     lines = ""
@@ -223,18 +237,23 @@ def mark_messages_read(client, address, username):
     f.write(lines)
     f.close()
 
-
+#List clients registered in the server
+#TESTED
 def list_clients():
-    users = ""
-    f = open("clients.txt", "r")
-    for line in f:
-        line = line.strip("\n")
-        separated_info = line.split(',')
-        users += separated_info[0] + "\n"
-    f.close()
-    return users
+	registered_users = []
+	f = open("clients.txt", "r")
+	for line in f:
+		if line == "\n":
+			continue
+		separated_info = line.split(', ')
+		registered_users.append(separated_info[0])
+	f.close()
+	registered_users = '\n'.join(registered_users)
+	return registered_users
 
 
+#Send message to a user
+#TESTED
 def send_message(client, address):
     message = client.recv(1024).decode("utf-8")
     message = json.loads(message)

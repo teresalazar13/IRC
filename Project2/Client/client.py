@@ -17,7 +17,7 @@ def client(server_port):
 
 	user = []
 	while True:
-		option = menu(conn)
+		option = menu(conn, user)
 		#REGISTER
 		#TESTED
 		if option == '0':
@@ -33,25 +33,30 @@ def client(server_port):
 			if response != -1:
 				user = response
 		#LIST AUTHORIZED CLIENTS
+		#TESTED
 		elif option == '3':
 			conn.send(option.encode("utf-8"))
 			print 'LIST OF AUTHORIZED CLIENTS'
-			print conn.recv(1024).decode('utf-8')
+			response = conn.recv(1024).decode('utf-8')
+			print response
 		#QUIT
 		#TESTED
 		elif option == '9':
 			shutdown_client()
 		#IF NOT LOGGED IN
-		#TEST
+		#TESTED
 		elif option in ['2', '4', '5', '6', '7', '8'] and (user == [] or user == None):
 			print 'Please login first'
+			conn.send("Not logged in".encode('utf-8'))
 		#IF LOGGED IN
 		else:
 			conn.send(option.encode('utf-8'))
 			#LIST UNREAD MESSAGES
+			#TESTED
 			if option == '2':
 				list_messages(conn, user, 0)
 			#SEND MESSAGE TO CLIENT
+			#TEST
 			elif option == '4':
 				send_message(conn, user)
 			#LIST READ MESSAGES
@@ -79,8 +84,8 @@ def shutdown_client():
 	sys.exit('Client disconnected')
 
 
-###DONE
 #Create, connect and bind socket
+#TESTED
 def create_socket(port):
 	try:
 		client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -98,11 +103,17 @@ def create_socket(port):
 
 
 #Main menu
-def menu(conn):
-	notifications = conn.recv(1024).decode("utf-8")
-	if notifications != "0":
-		print "You have a new message"
+#TESTED
+def menu(conn, user):
+	if user != [] and user != None:
+		notifications = conn.recv(1024).decode("utf-8")
+		if notifications != "0":
+			print "You have a new message"
+		else:
+			print "Got 0 notifications"
 	else:
+		print "Please log in to get notifications"
+
 		print "No new notifications"
 	option = raw_input("0 - Register\n"
 				   "1 - Login\n"
@@ -124,7 +135,7 @@ def menu_superuser():
                    "3 - Quit superuser mode\n")
     return str(option)
 
-#Register user if not already logged in
+#Register user in the server if not already logged in
 #TESTED
 def register(conn):
 	username = ""
@@ -142,6 +153,7 @@ def register(conn):
 		print "Already registered. Please login"
 		return -1
 
+#Login user into the server
 #TESTED
 def login(conn):
 	username = raw_input("Username: ")
@@ -159,23 +171,25 @@ def login(conn):
 	else:
 		print "User does not exist please register"
 
-
+#TESTED
+#Print read messages and unread messages depending on variable read
 def list_messages(conn, user, read):
-    conn.send(user[0].encode("utf-8"))
-    messages = conn.recv(1024).decode("utf-8")
-    if messages != "0":
-        print "LIST OF YOUR MESSAGES"
-        print messages
-    else:
-        if read == 0:
-            print "You have no unread messages"
-        if read == 1:
-            print "You have no read messages"
-        if read == 2:
-            print "There are no messages to delete"
-            return False
+	conn.send(user[0].encode("utf-8"))
+	messages = conn.recv(1024).decode("utf-8")
+	if messages != "0":
+		print "LIST OF YOUR MESSAGES"
+		print messages
+	else:
+		if read == 0:
+			print "You have no unread messages"
+		if read == 1:
+			print "You have no read messages"
+		if read == 2:
+			print "There are no messages to delete"
+			return False
 
-
+#Send email
+#TEST
 def send_message(conn, user):
     receiver = raw_input("Who do you wish to send your message? ")
     message_text = raw_input("Please write your message: ")
