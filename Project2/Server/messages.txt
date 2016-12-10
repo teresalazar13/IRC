@@ -1,7 +1,1 @@
-teresa|Ola|goa|1
-goa|Adeus|teresa|0
-teresa|fwefef|goa|1
-goa|dfwfwrf|teresa|1
-teresa|wefwrfrf|goa|1
-goa|hello|teresa|0
-goa|oui|teresa|0
+goa|ola|teresa|1
