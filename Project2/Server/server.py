@@ -210,22 +210,22 @@ def list_messages_client(client, address, read):
 
 #Mark message as read
 def mark_messages_read(client, address, username):
-    f = open("messages.txt", "r")
-    lines = ""
-    for line in f:
-        line = line.strip("\n")
-        separated_info = line.split('|')
-        if separated_info[2] == username:
-            line_read = line[:-1]
-            line_read = line_read + "1" + "\n"
-            lines += line_read
-        else:
-            line = line + "\n"
-            lines += line
-    f.close()
-    f = open("messages.txt", "w")
-    f.write(lines)
-    f.close()
+	f = open("messages.txt", "r")
+	lines = ""
+	for line in f:
+		line = line.strip("\n")
+		separated_info = line.split('|')
+		if separated_info[2] == username:
+			line_read = line[:-1]
+			line_read = line_read + "1" + "\n"
+			lines += line_read
+		else:
+			line = line + "\n"
+			lines += line
+	f.close()
+	f = open("messages.txt", "w")
+	f.write(lines)
+	f.close()
 
 
 #List clients registered in the server
